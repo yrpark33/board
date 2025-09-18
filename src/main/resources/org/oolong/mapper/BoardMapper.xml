@@ -30,5 +30,53 @@
 		order by bno desc
 	</select>
 	
+	<select id="list2" resultType="BoardDTO">
+		select bno, title, content, regdate from tbl_board
+		where delflag = false
+		order by bno desc
+		limit #{count} offset #{skip}
+	</select>
+	
+	<select id="listCount">
+		select count(bno) from tbl_board where delflag = false
+	</select>
+	
+	
+	<sql id="search">
+		<if test="types != null and keyword != null">
+			<foreach collection="types" item="type" open="and (" close=")" separator=" or ">
+				<if test='type.equals("T")'>
+					title like CONCAT('%', #{keyword}, '%')
+				</if>
+				<if test='type.equals("C")'>
+					content like CONCAT('%', #{keyword}, '%')
+				</if>
+				<if test='type.equals("W")'>
+					writer like CONCAT('%', #{keyword}, '%')
+				</if>
+				
+				
+			</foreach>
+		</if>
+	</sql>
+	
+	<select id="listSearch" resultType="BoardDTO">
+		select bno, title, writer, regdate from tbl_board
+		where delflag = false
+		
+		<include refid="search"></include>
+		
+		order by bno desc
+		limit #{count} offset #{skip}
+	</select>
+	
+	
+	<select id="listCountSearch">
+		select count(bno) from tbl_board
+		where delflag = false
+		
+		<include refid="search"></include>
+		
+	</select>
 	
 </mapper>

@@ -2,6 +2,7 @@ package org.oolong.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.oolong.dto.BoardDTO;
 
 public interface BoardMapper {
@@ -15,4 +16,16 @@ public interface BoardMapper {
 	int update(BoardDTO dto);
 	
 	List<BoardDTO> list();
+	
+	List<BoardDTO> list2(@Param("skip") int skip, @Param("count") int count);
+	
+	int listCount();
+	
+	List<BoardDTO> listSearch(	@Param("skip") int skip,
+								@Param("count") int count,
+								@Param("types") String[] types,
+								@Param("keyword") String keyword );
+
+	int listCountSearch(@Param("types") String[] types, @Param("keyword") String keyword);
+	
 }

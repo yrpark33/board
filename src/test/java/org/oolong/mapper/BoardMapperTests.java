@@ -82,7 +82,7 @@ public class BoardMapperTests {
 		log.info("updateCount: " + updateCount);
 	}
 	
-	@Test
+//	@Test
 	public void testList() {
 		
 		List<BoardDTO> dtoList = boardMapper.list();
@@ -92,6 +92,37 @@ public class BoardMapperTests {
 		
 	}
 	
+//	@Test
+	public void testList2() {
+		
+		int page = 2;
+		
+		int count = 10;
+		int skip = (page - 1) * count;
+		
+		
+		List<BoardDTO> dtoList = boardMapper.list2(skip, count);
+		
+		dtoList.stream().forEach(log::info);
+		
+	}
+	
+	@Test
+	public void testListSearch() {
+		
+		int page = 2;
+		
+		int count = 10;
+		
+		int skip = (page - 1) * count;
+		
+		String[] types = new String[] {"C"};
+		
+		String keyword = "test";
+		
+		boardMapper.listSearch(skip, count, types, keyword);
+		
+	}
 	
 	
 }

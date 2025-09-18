@@ -1,0 +1,28 @@
+# ==================================
+# Spring Legacy + Eclipse .gitignore
+# ==================================
+
+# Maven / Gradle 빌드 산출물
+/target/
+build/
+
+# Eclipse 관련 파일
+*.classpath
+*.project
+*.settings/
+
+
+# 로그 파일
+*.log
+
+# OS 관련 파일
+.DS_Store
+Thumbs.db
+
+# 임시 파일
+*.tmp
+*.swp
+*.bak
+
+# 환경설정 파일
+*.env
