@@ -2,7 +2,6 @@ package org.oolong.dto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +21,7 @@ public class BoardDTO {
 	private LocalDateTime regDate;
 	private LocalDateTime updateDate;
 	private boolean delFlag;
+	private int replyCnt;
 	
 	public String getCreatedDate() {
 		return regDate.format(DateTimeFormatter.ISO_DATE);

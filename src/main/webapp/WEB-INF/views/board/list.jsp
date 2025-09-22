@@ -41,7 +41,7 @@
 							<c:forEach var="board" items="${dto.boardDTOList}">
 								<tr>
 									<td>${board.bno}</td>
-									<td><a href='/board/read/${board.bno}'>${board.title}</a></td>
+									<td><a href='/board/read/${board.bno}'>${board.title}</a><b style="color: blue"> [ <c:out value='${board.replyCnt}'/> ]</b> </td>
 									<td>${board.writer}</td>
 									<td>${board.createdDate}</td>
 								</tr>
