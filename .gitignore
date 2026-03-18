@@ -1,0 +1,22 @@
+# ========================
+# Build Output
+# ========================
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# ========================
+# IDE 설정 파일
+# ========================
+# Eclipse
+.settings/
+.classpath
+.project
+*.launch
+
+**/META-INF/MANIFEST.MF
+
+db.properties
+/build/
