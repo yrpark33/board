@@ -15,6 +15,8 @@ public interface BoardMapper {
 	
 	int update(BoardDTO boardDTO);
 	
-	List<BoardDTO> selectList();
+	int selectTotalCountSearch(@Param("types") String[] types, @Param("keyword") String keyword);
+	
+	List<BoardDTO> selectListSearch(@Param("skip") int skip, @Param("count") int count, @Param("types") String[] types, @Param("keyword") String keyword);
 	
 }

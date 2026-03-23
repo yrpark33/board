@@ -30,7 +30,7 @@
 						
 					</form>
 					<div class="float-right">
-						<button type="button" class="btn btn-info btnList">목록</button>
+						<a class="btn btn-info" href="/board/list?${dto.toQueryString()}">목록</a>
 						<button type="button" class="btn btn-warning btnModify">수정</button>
 						<button type="button" class="btn btn-danger btnRemove">삭제</button>
 					</div>
@@ -43,17 +43,15 @@
 	
 		const formObj = document.querySelector('#modifyForm');
 		
+	
 		document.querySelector('.btnModify').addEventListener('click', () => {
 			formObj.action = '/board/modify'
 			formObj.method = 'post'
 			formObj.submit()
 		})
 		
-		document.querySelector('.btnList').addEventListener('click', () => {
-			formObj.action = '/board/list'
-			formObj.method = 'get'
-			formObj.submit()
-		})
+		
+		
 		
 		document.querySelector('.btnRemove').addEventListener('click', () => {
 			formObj.action = '/board/remove'
