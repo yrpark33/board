@@ -72,21 +72,23 @@ public class BoardMapperTests {
 		
 	}
 	
+	
+	
 //	@Test
-	public void testSelectAll() {
+	public void testSelectListSearch() {
 		
-		List<BoardDTO> dtoList = boardMapper.selectList();
+		int page = 2;
+		int count = 10;
+		int skip = (page - 1) * 10;
 		
-		log.info("dtoList");
-		log.info(dtoList);
+		String[] types = null;
+		String keyword = "Test";
 		
-		dtoList.forEach(log::info);
+		
+		boardMapper.selectListSearch(skip, count, types, keyword);
 		
 		
 	}
-	
-	
-	
 	
 	
 	

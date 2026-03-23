@@ -27,8 +27,8 @@
 						<input type="text" class="form-control" value="<c:out value='${board.createdDate}'/>" readonly>
 					</div>
 					<div class="float-right">
-						<a class="btn" href="/board/list"><button type="button" class="btn btn-info btnList">목록</button></a>
-						<a class="btn" href="/board/modify/${board.boardId}"><button type="button" class="btn btn-warning btnModify">수정</button></a>
+						<a class="btn btn-info" href="/board/list?${dto.toQueryString()}">목록</a>
+						<a class="btn btn-warning" href="/board/modify/${board.boardId}?${dto.toQueryString()}">수정</a>
 					</div>
 				</div>
 			</div>

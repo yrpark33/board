@@ -1,6 +1,7 @@
 package org.oolong.controller;
 
 import org.oolong.dto.BoardDTO;
+import org.oolong.dto.BoardPageRequestDTO;
 import org.oolong.service.BoardService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,9 +24,11 @@ public class BoardController {
 	private final BoardService boardService;
 	
 	@GetMapping("/list")
-	public String list(Model model) {
-		log.info("list");
-		model.addAttribute("list", boardService.getBoardList());
+	public String list(BoardPageRequestDTO dto, Model model) {
+		
+		
+		log.info("list boardPageRequestDTO: {}", dto);
+		model.addAttribute("dto", boardService.getBoardList(dto));
 		
 		return "/board/list";
 	}
@@ -45,17 +48,19 @@ public class BoardController {
 	}
 	
 	@GetMapping("/{boardId}")
-	public String detail(@PathVariable("boardId") Long boardId, Model model) {
-		log.info("detail boardId : {}", boardId);
+	public String detail(@PathVariable("boardId") Long boardId, BoardPageRequestDTO dto, Model model) {
+		log.info("detail boardId, boardPageRequestDTO : {}, {}", boardId, dto);
 		model.addAttribute("board", boardService.getBoard(boardId));
+		model.addAttribute("dto", dto);
 		return "/board/detail";
 	}
 	
 	@GetMapping("/modify/{boardId}")
-	public String modify(@PathVariable("boardId") Long boardId, Model model) {
-		log.info("modify boardId: {}", boardId);
+	public String modify(@PathVariable("boardId") Long boardId, BoardPageRequestDTO dto, Model model) {
+		log.info("modify boardId: {}, {}", boardId, dto);
 		BoardDTO boardDTO = boardService.getBoard(boardId);
 		model.addAttribute("board", boardDTO);
+		model.addAttribute("dto", dto);
 		return "/board/modify";
 	}
 	
@@ -71,6 +76,7 @@ public class BoardController {
 		log.info("remove boardId: {}", boardId);
 		boardService.removeBoard(boardId);
 		rttr.addFlashAttribute("removed", boardId);
+		
 		return "redirect:/board/list";
 		
 	}

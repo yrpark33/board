@@ -9,28 +9,62 @@
 			SELECT LAST_INSERT_ID()
 		</selectKey>
 		
-		insert into tbl_board (title, content, writer)
-		values (#{title}, #{content}, #{writer})
+		INSERT INTO tbl_board (title, content, writer)
+		VALUES (#{title}, #{content}, #{writer})
 	</insert>
 	
 	<select id="selectById" resultType="BoardDTO">
-		select * from tbl_board where board_id = #{boardId}
+		SELECT * FROM tbl_board WHERE board_id = #{boardId}
 	</select>
 	
 	<update id="delete">
-		update tbl_board
-			set is_deleted = true, deleted_at = now()
-		where board_id = #{boardId}
+		UPDATE tbl_board
+			SET is_deleted = true, deleted_at = now()
+		WHERE board_id = #{boardId}
 	</update>
 	
 	<update id="update">
-		update tbl_board
-			set title = #{title}, content = #{content}, updated_at = now()
-		where board_id = #{boardId}
+		UPDATE tbl_board
+			SET title = #{title}, content = #{content}, updated_at = now()
+		WHERE board_id = #{boardId}
 	</update>
 	
-	<select id="selectList">
-		select board_id, title, writer, created_at from tbl_board where is_deleted = false order by board_id desc
+	<sql id="search">
+		<if test="types != null and keyword != null">
+			<foreach collection="types" item="type" open="AND (" close=")" separator=" OR ">
+				<if test='type.equals("T")'>
+					title LIKE CONCAT('%', #{keyword}, '%')
+				</if>
+				<if test='type.equals("C")'>
+					content LIKE CONCAT('%', #{keyword), '%')
+				</if>
+				<if test='type.equals("W")'>
+					writer LIKE CONCAT('%', #{keyword}, '%')
+				</if>
+			</foreach>
+		</if>
+	</sql>
+	
+	<select id="selectTotalCountSearch" resultType="int">
+		SELECT COUNT(*) FROM tbl_board
+		
+		WHERE is_deleted = false
+		
+		<include refid="search"></include>
+		
+		
+	</select>
+	
+	<select id="selectListSearch" resultType="BoardDTO">
+		SELECT board_id, title, writer, created_at
+		FROM tbl_board
+		WHERE is_deleted = false
+		
+		<include refid="search"></include>
+		
+		ORDER BY board_id DESC
+		LIMIT #{count} OFFSET #{skip}
+		
 	</select>
 	
 	
