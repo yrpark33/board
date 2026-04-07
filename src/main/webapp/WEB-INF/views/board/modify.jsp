@@ -10,14 +10,17 @@
 				</div>
 				<div class="card-body">
 					<form id="modifyForm" action="/board/modify" method="post">
+						<c:if test="${not empty errorMsg}">
+    						<div class="alert alert-danger">${errorMsg}</div>
+						</c:if>
 						<input type="hidden" name="boardId" value="${board.boardId}">
 						<div class="input-group input-group-lg mb-3">
 							<div class="input-group-prepend"><span class="input-group-text">제목</span></div>
-							<input type="text" name="title" class="form-control" value="<c:out value='${board.title}'/>"/>
+							<input type="text" name="title" class="form-control" value="<c:out value='${board.title}'/>"/ required>
 						</div>
 						<div class="input-group input-group-lg mb-3">
 							<div class="input-group-prepend"><span class="input-group-text">내용</span></div>
-							<textarea name="content" class="form-control" rows="3"><c:out value='${board.content}'/></textarea>
+							<textarea name="content" class="form-control" rows="3" required><c:out value='${board.content}'/></textarea>
 						</div>
 						<div class="input-group input-group-lg mb-3">
 							<div class="input-group-prepend"><span class="input-group-text">작성자</span></div>
@@ -31,7 +34,7 @@
 					</form>
 					<div class="float-right">
 						<a class="btn btn-info" href="/board/list?${dto.toQueryString()}">목록</a>
-						<button type="button" class="btn btn-warning btnModify">수정</button>
+						<button type="submit" form="modifyForm" class="btn btn-warning">수정</button>
 						<button type="button" class="btn btn-danger btnRemove">삭제</button>
 					</div>
 				</div>
@@ -44,20 +47,23 @@
 		const formObj = document.querySelector('#modifyForm');
 		
 	
-		document.querySelector('.btnModify').addEventListener('click', () => {
-			formObj.action = '/board/modify'
-			formObj.method = 'post'
-			formObj.submit()
-		})
-		
-		
-		
-		
 		document.querySelector('.btnRemove').addEventListener('click', () => {
 			formObj.action = '/board/remove'
 			formObj.method = 'post'
 			formObj.submit()
 		})
+		
+		formObj.addEventListner('submit', (e) => {
+			
+			e.preventDefault()
+			
+			formObj.action = '/board/modify'
+			formObj.method = 'post'
+			formObj.submit()
+			
+			
+		})
+		
 		
 		
 		

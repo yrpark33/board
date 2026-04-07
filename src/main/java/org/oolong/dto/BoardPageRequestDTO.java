@@ -6,29 +6,25 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
-public class BoardPageRequestDTO {
+@ToString(callSuper = true)
+public class BoardPageRequestDTO extends PageRequestDTO {
 
-	private int page = 1;
-	private int size = 10;
+	
 	private String types;
 	private String keyword;
 	
-	
+	@Override
 	public String toQueryString() {
 		
-		StringBuilder sb = new StringBuilder();
 		
-		sb.append("page=").append(this.page);
-		sb.append("&size=").append(this.size);
-		
+		String queryString = super.toQueryString();
 		if(this.types != null && this.keyword != null) {
-			sb.append("&types=").append(this.types);
-			sb.append("&keyword=").append(this.keyword);
+		
+			queryString += "&types=" + types + "&keyword=" + keyword;
 		}
 		
 		
-		return sb.toString();
+		return queryString;
 	}
 	
 }

@@ -40,7 +40,7 @@
 							<c:forEach var="board" items="${dto.boardDTOList}">
 								<tr data-boardId="${board.boardId}">
 									<td><c:out value="${board.boardId}"/></td>
-									<td><a class="boardTitle" href="${board.boardId}"><c:out value="${board.title}"/></a></td>
+									<td><a class="boardTitle" href="${board.boardId}"><c:out value="${board.title}"/></a> <b style="color:blue;">[ <c:out value="${board.commentCount}"/> ]</b> </td>
 									<td><c:out value="${board.writer}"/></td>
 									<td><c:out value="${board.createdDate}"/></td>
 								</tr>
@@ -91,7 +91,18 @@
 	</div>
 	
 	<script type="text/javascript" defer="defer">
+		
+		const errorMsg = '${errorMsg}'
+		
+		if(errorMsg) {
+			alert(errorMsg)
+		}
+	
+	
 		const removed = '${removed}'
+		
+		const pageNums = '${dto.pageNums}'
+		console.log(pageNums)
 		
 		const modal = new bootstrap.Modal(document.getElementById('removeModal'))
 		

@@ -14,41 +14,42 @@
 	</insert>
 	
 	<select id="selectById" resultType="BoardDTO">
-		SELECT * FROM tbl_board WHERE board_id = #{boardId}
+		SELECT * FROM tbl_board
+		WHERE board_id = #{boardId} AND deleted = FALSE
 	</select>
 	
 	<update id="delete">
 		UPDATE tbl_board
-			SET is_deleted = true, deleted_at = now()
-		WHERE board_id = #{boardId}
+			SET deleted = TRUE, deleted_at = NOW()
+		WHERE board_id = #{boardId} AND deleted = FALSE
 	</update>
 	
 	<update id="update">
 		UPDATE tbl_board
-			SET title = #{title}, content = #{content}, updated_at = now()
-		WHERE board_id = #{boardId}
+			SET title = #{title}, content = #{content}, updated_at = NOW()
+		WHERE board_id = #{boardId} AND deleted = FALSE
 	</update>
 	
 	<sql id="search">
 		<if test="types != null and keyword != null">
 			<foreach collection="types" item="type" open="AND (" close=")" separator=" OR ">
 				<if test='type.equals("T")'>
-					title LIKE CONCAT('%', #{keyword}, '%')
+					b.title LIKE CONCAT('%', #{keyword}, '%')
 				</if>
 				<if test='type.equals("C")'>
-					content LIKE CONCAT('%', #{keyword), '%')
+					b.content LIKE CONCAT('%', #{keyword), '%')
 				</if>
 				<if test='type.equals("W")'>
-					writer LIKE CONCAT('%', #{keyword}, '%')
+					b.writer LIKE CONCAT('%', #{keyword}, '%')
 				</if>
 			</foreach>
 		</if>
 	</sql>
 	
 	<select id="selectTotalCountSearch" resultType="int">
-		SELECT COUNT(*) FROM tbl_board
+		SELECT COUNT(*) FROM tbl_board b
 		
-		WHERE is_deleted = false
+		WHERE deleted = FALSE
 		
 		<include refid="search"></include>
 		
@@ -56,14 +57,17 @@
 	</select>
 	
 	<select id="selectListSearch" resultType="BoardDTO">
-		SELECT board_id, title, writer, created_at
-		FROM tbl_board
-		WHERE is_deleted = false
+		SELECT b.board_id, title, b.writer, b.created_at, count(comment_id) AS commentCount
+		FROM tbl_board b
+		LEFT JOIN tbl_comment c
+		ON b.board_id = c.board_id
+		WHERE b.deleted = FALSE
 		
 		<include refid="search"></include>
 		
-		ORDER BY board_id DESC
-		LIMIT #{count} OFFSET #{skip}
+		GROUP BY b.board_id
+		ORDER BY b.board_id DESC
+		LIMIT #{limit} OFFSET #{offset}
 		
 	</select>
 	

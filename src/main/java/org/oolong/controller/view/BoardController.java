@@ -1,10 +1,12 @@
-package org.oolong.controller;
+package org.oolong.controller.view;
 
 import org.oolong.dto.BoardDTO;
 import org.oolong.dto.BoardPageRequestDTO;
+import org.oolong.dto.BoardPageResponseDTO;
 import org.oolong.service.BoardService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +30,10 @@ public class BoardController {
 		
 		
 		log.info("list boardPageRequestDTO: {}", dto);
-		model.addAttribute("dto", boardService.getBoardList(dto));
+		
+		BoardPageResponseDTO responseDTO = boardService.getBoardList(dto);
+		log.info("BoardController: " + responseDTO);
+		model.addAttribute("dto", responseDTO);
 		
 		return "/board/list";
 	}
@@ -41,8 +46,16 @@ public class BoardController {
 	}
 	
 	@PostMapping("/write")
-	public String write(BoardDTO boardDTO) {
+	public String write(BoardDTO boardDTO, RedirectAttributes rttr) {
 		log.info("write boardDTO: {}", boardDTO);
+		
+		if(!StringUtils.hasText(boardDTO.getTitle()) || !StringUtils.hasText(boardDTO.getContent()) || !StringUtils.hasText(boardDTO.getWriter())) {
+			rttr.addFlashAttribute("board", boardDTO);
+			rttr.addFlashAttribute("errorMsg", "모든 항목을 입력해주세요");
+			return "redirect:/board/write";
+		}
+
+		
 		Long boardId = boardService.writeBoard(boardDTO);
 		return "redirect:/board/" + boardId;
 	}
@@ -58,15 +71,31 @@ public class BoardController {
 	@GetMapping("/modify/{boardId}")
 	public String modify(@PathVariable("boardId") Long boardId, BoardPageRequestDTO dto, Model model) {
 		log.info("modify boardId: {}, {}", boardId, dto);
-		BoardDTO boardDTO = boardService.getBoard(boardId);
-		model.addAttribute("board", boardDTO);
-		model.addAttribute("dto", dto);
+		
+		if(model.containsAttribute("board")) {
+			BoardDTO dbDTO = boardService.getBoard(boardId);
+			BoardDTO flashDTO = (BoardDTO) model.getAttribute("board");
+			flashDTO.setCreatedAt(dbDTO.getCreatedAt());
+			flashDTO.setWriter(dbDTO.getWriter());
+		} else {
+			BoardDTO boardDTO = boardService.getBoard(boardId);
+			model.addAttribute("board", boardDTO);
+			model.addAttribute("dto", dto);
+		}
+		
 		return "/board/modify";
 	}
 	
 	@PostMapping("/modify")
-	public String modifyPost(BoardDTO boardDTO) {
+	public String modifyPost(BoardDTO boardDTO, RedirectAttributes rttr) {
 		log.info("modifyPost boardDTO: {}", boardDTO);
+		
+		if(boardDTO.getTitle().isBlank() || boardDTO.getContent().isBlank()) {
+			rttr.addFlashAttribute("board", boardDTO);
+			rttr.addFlashAttribute("errorMsg", "모든 항목을 입력해주세요");
+			return "redirect:/board/modify/" + boardDTO.getBoardId();
+		}
+		
 		boardService.modifyBoard(boardDTO);
 		return "redirect:/board/" + boardDTO.getBoardId();
 	}
