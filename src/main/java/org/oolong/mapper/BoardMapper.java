@@ -17,6 +17,6 @@ public interface BoardMapper {
 	
 	int selectTotalCountSearch(@Param("types") String[] types, @Param("keyword") String keyword);
 	
-	List<BoardDTO> selectListSearch(@Param("skip") int skip, @Param("count") int count, @Param("types") String[] types, @Param("keyword") String keyword);
+	List<BoardDTO> selectListSearch(@Param("offset") int offset, @Param("limit") int limit, @Param("types") String[] types, @Param("keyword") String keyword);
 	
 }
