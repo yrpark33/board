@@ -37,10 +37,10 @@
 						</thead>
 						
 						<tbody class="tbody">
-							<c:forEach var="board" items="${dto.boardDTOList}">
+							<c:forEach var="board" items="${dto.dtoList}">
 								<tr data-boardId="${board.boardId}">
 									<td><c:out value="${board.boardId}"/></td>
-									<td><a class="boardTitle" href="${board.boardId}"><c:out value="${board.title}"/></a> <b style="color:blue;">[ <c:out value="${board.commentCount}"/> ]</b> </td>
+									<td><c:if test="${not empty board.uuid}"><img src="/images/thumbnail/s_${board.uuid}_${board.fileName}"></c:if><a class="boardTitle" href="${board.boardId}"><c:out value="${board.title}"/></a> <b style="color:blue;">[ <c:out value="${board.commentCount}"/> ]</b> </td>
 									<td><c:out value="${board.writer}"/></td>
 									<td><c:out value="${board.createdDate}"/></td>
 								</tr>

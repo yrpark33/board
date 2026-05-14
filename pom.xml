@@ -57,9 +57,10 @@
 	</dependency>
 	<dependency>
 	    <groupId>org.junit.jupiter</groupId>
-	    <artifactId>junit-jupiter-api</artifactId>
+	    <artifactId>junit-jupiter</artifactId>
 	    <version>5.11.2</version>
-	</dependency>
+	    <scope>test</scope>
+		</dependency>
 	<dependency>
 	    <groupId>org.mybatis</groupId>
 	    <artifactId>mybatis</artifactId>
@@ -99,6 +100,12 @@
 	    <groupId>com.fasterxml.jackson.datatype</groupId>
 	    <artifactId>jackson-datatype-jsr310</artifactId>
 	    <version>2.19.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>net.coobird</groupId>
+	    <artifactId>thumbnailator</artifactId>
+	    <version>0.4.20</version>
+	    <scope>compile</scope>
 	</dependency>
   </dependencies>
   <build>

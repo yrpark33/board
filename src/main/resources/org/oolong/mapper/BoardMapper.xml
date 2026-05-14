@@ -13,9 +13,29 @@
 		VALUES (#{title}, #{content}, #{writer})
 	</insert>
 	
-	<select id="selectById" resultType="BoardDTO">
-		SELECT * FROM tbl_board
-		WHERE board_id = #{boardId} AND deleted = FALSE
+	<resultMap type="BoardDTO" id="selectMap">
+		<id property="boardId" column="board_id"/>
+		<result property="title" column="title"/>
+		<result property="content" column="content"/>
+		<result property="writer" column="writer"/>
+		<result property="createdAt" column="created_at"/>
+		
+		<collection property="files" ofType="BoardFileDTO">
+			<id property="fileId" column="file_id"/>
+			<result property="fileName" column="file_name"/>
+			<result property="uuid" column="uuid"/>
+			<result property="sortOrder" column="sort_order"/>
+			<result property="image" column="image"/>
+		</collection>
+	</resultMap>
+	
+	<select id="selectById" resultMap="selectMap">
+		SELECT b.board_id, title, content, writer, b.created_at, file_id, file_name, uuid, sort_order, image
+		FROM tbl_board b
+		LEFT JOIN tbl_board_file f
+		ON b.board_id = f.board_id
+		WHERE b.board_id = #{boardId} AND b.deleted = FALSE
+		ORDER BY sort_order
 	</select>
 	
 	<update id="delete">
@@ -56,11 +76,11 @@
 		
 	</select>
 	
-	<select id="selectListSearch" resultType="BoardDTO">
-		SELECT b.board_id, title, b.writer, b.created_at, count(comment_id) AS commentCount
+	<select id="selectListSearch" resultType="BoardListDTO">
+		SELECT b.board_id, title, b.writer, b.created_at, count(comment_id) AS commentCount, file_name, uuid
 		FROM tbl_board b
-		LEFT JOIN tbl_comment c
-		ON b.board_id = c.board_id
+		LEFT JOIN tbl_comment c ON b.board_id = c.board_id
+		LEFT JOIN tbl_board_file f ON b.board_id = f.board_id and sort_order = 0
 		WHERE b.deleted = FALSE
 		
 		<include refid="search"></include>
@@ -71,5 +91,23 @@
 		
 	</select>
 	
+	<insert id="insertFiles">
+		insert into tbl_board_file(board_id, file_name, uuid, sort_order, image)
+		values
+		
+		<foreach collection="files" item="file" separator=",">
+			(#{boardId}, #{file.fileName}, #{file.uuid}, #{file.sortOrder}, #{file.image})
+		</foreach>
+	</insert>
+	
+	<delete id="deleteFiles">
+		DELETE FROM tbl_board_file WHERE board_id = #{boardId}
+	</delete>
+	
+	<update id="updateFilesAsDeleted">
+		UPDATE tbl_board_file
+			SET deleted = TRUE
+		WHERE board_id = #{boardId} AND deleted = FALSE
+	</update>
 	
 </mapper>

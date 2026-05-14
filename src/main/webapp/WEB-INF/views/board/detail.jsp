@@ -26,6 +26,26 @@
 						<div class="input-group-prepend"><span class="input-group-text">작성 시간</span></div>
 						<input type="text" class="form-control" value="<c:out value='${board.createdDate}'/>" readonly>
 					</div>
+					
+					
+					<c:if test="${not empty board.files}">
+						<div class="mb-3">
+							<label class="form-label font-weight-bold text-primary">첨부파일</label>
+							<div class="row">
+								<c:forEach var="file" items="${board.files}">
+									<div class="col-md-3 mb-3">
+										<div class="card">
+											<a href="/images/original/${file.uuid}_${file.fileName}" target="_blank">
+												<img src="/images/original/${file.uuid}_${file.fileName}" class="card-img-top img-fluid" alt="첨부파일"/>
+											</a>
+										</div>
+									</div>
+								</c:forEach>
+							</div>
+						</div>
+					</c:if>
+					
+					
 					<div class="float-right">
 						<a class="btn btn-info" href="/board/list?${dto.toQueryString()}">목록</a>
 						<a class="btn btn-warning" href="/board/modify/${board.boardId}?${dto.toQueryString()}">수정</a>
@@ -35,9 +55,10 @@
 		</div>
 		
 		<div class="col-lg-12">
+			<label class="form-label font-weight-bold text-primary">댓글 작성</label>
 			<div class="card shadow mb-4">
 				<div class="m-4">
-					<form id="commentForm" class="mt-4">
+					<form id="commentForm">
 						<input type="hidden" name="boardId" value="${board.boardId}"/>
 						<div class="mb-3 input-group">
 							<div class="input-group-prepend"><span class="input-group-text">작성자</span></div>
@@ -56,6 +77,7 @@
 		</div>
 		
 		<div class="col-lg-12">
+			<label class="form-label font-weight-bold text-primary">댓글 목록</label>
 			<div class="card shadow mb-4">
 				<div class="m-4">
 					<ul class="list-group commentList">
@@ -77,7 +99,7 @@
 					<div class="mt-4">
 						<ul class="pagination justify-content-center">
 							<li class="page-item disabled">
-								<a class="page-link" href="#" tabindxe="-1">이전</a>
+								<a class="page-link" href="#" tabindex="-1">이전</a>
 							</li>
 							<li class="page-item active">
 								<a class="page-link" href="#">1</a>
