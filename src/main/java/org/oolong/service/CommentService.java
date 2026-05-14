@@ -93,9 +93,6 @@ public class CommentService {
 	@Transactional(readOnly = true)
 	public CommentPageResponseDTO getCommentList(Long boardId, PageRequestDTO pageRequestDTO) {
 		
-		
-		
-		
 		int page = pageRequestDTO.getPage();
 		
 		int size = pageRequestDTO.getSize();

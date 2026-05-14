@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -33,14 +35,15 @@ public class CommentServiceTests {
 	private BoardService boardService;
 	
 	
-	private Long createBoard() {
+	private Long createBoard() throws IOException {
 		BoardDTO targetBoard = BoardDTO.builder().title("테스트용 게시글").content("내용").writer("writer1").build();
-		return boardService.writeBoard(targetBoard);
+		MultipartFile[] files = new MultipartFile[0];
+		return boardService.writeBoard(targetBoard, files);
 	}
 	
 	
 	@Test
-	void 댓글_등록_성공() {
+	void 댓글_등록_성공() throws IOException {
 		
 		//given
 		Long targetBoardId = createBoard();
@@ -59,7 +62,7 @@ public class CommentServiceTests {
 	}
 	
 	@Test
-	void 댓글_조회_성공() {
+	void 댓글_조회_성공() throws IOException {
 		
 		//given
 		Long targetBoardId = createBoard();
@@ -79,7 +82,7 @@ public class CommentServiceTests {
 	}
 	
 	@Test
-	void 댓글_목록_조회_성공() {
+	void 댓글_목록_조회_성공() throws IOException {
 		
 		//given
 		Long targetBoardId = createBoard();
@@ -112,7 +115,7 @@ public class CommentServiceTests {
 	
 	
 	@Test
-	void 댓글_수정_성공() {
+	void 댓글_수정_성공() throws IOException {
 		
 		//given
 		Long targetBoardId = createBoard();
@@ -131,7 +134,7 @@ public class CommentServiceTests {
 	}
 	
 	@Test
-	void 댓글_삭제_성공() {
+	void 댓글_삭제_성공() throws IOException {
 		
 		//given
 		Long targetBoardId = createBoard();
@@ -225,7 +228,7 @@ public class CommentServiceTests {
 	}
 	
 	@Test
-	void 이미_삭제된_댓글_삭제시_예외발생() {
+	void 이미_삭제된_댓글_삭제시_예외발생() throws IOException {
 		
 		Long targetBoardId = createBoard();
 		CommentDTO newComment = CommentDTO.builder().boardId(targetBoardId).content("내용").writer("commenter1").build();
@@ -245,7 +248,7 @@ public class CommentServiceTests {
 	}
 	
 	@Test
-	void 이미_삭제된_댓글_수정시_예외발생() {
+	void 이미_삭제된_댓글_수정시_예외발생() throws IOException {
 		
 		Long targetBoardId = createBoard();
 		
@@ -264,6 +267,8 @@ public class CommentServiceTests {
 		assertEquals("댓글이 존재하지 않습니다", ex.getMessage());
 		
 	}
+	
+	
 	
 	
 }

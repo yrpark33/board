@@ -10,17 +10,17 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class BoardPageResponseDTO extends PageResponseDTO {
 	
-	private List<BoardDTO> boardDTOList;
+	private List<BoardListDTO> dtoList;
 	
 	private String types;
 	
 	private String keyword;
 	
-	public BoardPageResponseDTO(List<BoardDTO> boardDTOList, int page, int size, int totalCount, String types, String keyword) {
+	public BoardPageResponseDTO(List<BoardListDTO> dtoList, int page, int size, int totalCount, String types, String keyword) {
 		
 		super(page, size, totalCount);
 		
-		this.boardDTOList = boardDTOList;
+		this.dtoList = dtoList;
 		this.types = types;
 		this.keyword = keyword;
 		

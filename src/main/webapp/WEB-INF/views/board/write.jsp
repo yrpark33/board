@@ -9,7 +9,7 @@
 					<h5 class="m-0 font-weight-bold text-primary">게시물 작성</h5>
 				</div>
 				<div class="card-body">
-					<form action="/board/write" method="post">
+					<form action="/board/write" method="post" enctype="multipart/form-data">
 						<c:if test="${not empty errorMsg}">
     						<div class="alert alert-danger">${errorMsg}</div>
 						</c:if>
@@ -20,6 +20,11 @@
 						<div class="mb-3">
 							<label class="form-label">내용</label>
 							<textarea class="form-control" name="content" required>${board.content}</textarea>
+						</div>
+						<div class="form-group mb-3">
+						    <label class="font-weight-bold">첨부파일</label>
+						    <input type="file" name="attachedFiles" class="form-control-file" multiple>
+						    <small class="form-text text-muted">다중 선택이 가능합니다.</small>
 						</div>
 						<div class="mb-3">
 							<label class="form-label">작성자</label>
