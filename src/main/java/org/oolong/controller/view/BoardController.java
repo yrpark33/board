@@ -1,12 +1,12 @@
 package org.oolong.controller.view;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.oolong.dto.BoardDTO;
 import org.oolong.dto.BoardPageRequestDTO;
 import org.oolong.dto.BoardPageResponseDTO;
 import org.oolong.service.BoardService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -65,6 +65,7 @@ public class BoardController {
 		return "redirect:/board/" + boardId;
 	}
 
+	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/{boardId}")
 	public String detail(@PathVariable("boardId") Long boardId, BoardPageRequestDTO dto, Model model) {
 		log.info("detail boardId, boardPageRequestDTO : {}, {}", boardId, dto);
@@ -74,6 +75,7 @@ public class BoardController {
 	}
 
 	@GetMapping("/modify/{boardId}")
+	@PreAuthorize("authentication.name == #boardDTO.writer")
 	public String modify(@PathVariable("boardId") Long boardId, BoardPageRequestDTO dto, Model model) {
 		log.info("modify boardId: {}, {}", boardId, dto);
 
@@ -92,6 +94,7 @@ public class BoardController {
 	}
 
 	@PostMapping("/modify")
+	@PreAuthorize("authentication.name == #boardDTO.writer")
 	public String modifyPost(BoardDTO boardDTO, @RequestParam(name = "oldFileInfosJson", required = false) String oldFileInfosJson, @RequestParam("addedFiles") MultipartFile[] addedFiles, @RequestParam(name = "deletedFileInfosJson", required = false) String deletedFileInfosJson, RedirectAttributes rttr) throws IOException {
 		log.info("modifyPost boardDTO: {}", boardDTO);
 

@@ -1,6 +1,10 @@
 package org.oolong.controller.advice;
 
+
+
 import org.oolong.service.exception.ApplicationException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -36,6 +40,13 @@ public class BoardControllerAdvice {
 	
 	@ExceptionHandler(Exception.class)
 	public String handleAll(Exception ex, RedirectAttributes rttr) {
+		
+		
+		log.error("exception type: " + ex.getClass().getName());
+		
+		if (ex instanceof AuthenticationException || ex instanceof AccessDeniedException) {
+	        throw new RuntimeException(ex); // 시큐리티 예외는 다시 던지기
+	    }
 		
 		log.error("Internal Server Error: ", ex);
 		rttr.addFlashAttribute("errorMsg", "서비스 이용에 불편을 드려 죄송합니다. 잠시 후 다시 시도해 주세요.");

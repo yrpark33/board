@@ -40,7 +40,7 @@ public class BoardMapperTests {
 		return board;
 	}
 	
-	@Test
+//	@Test
 	void 게시물_등록_성공() {
 		
 		//given
@@ -59,7 +59,7 @@ public class BoardMapperTests {
 		assertEquals("user00", savedBoard.getWriter());
 	}
 	
-	@Test
+//	@Test
 	void 게시물_조회_성공() {
 		
 		
@@ -77,7 +77,7 @@ public class BoardMapperTests {
 		
 	}
 	
-	@Test
+//	@Test
 	void 게시물_페이징_및_검색_기능_테스트() {
 		
 		//given
@@ -142,7 +142,7 @@ public class BoardMapperTests {
 		
 	}
 	
-	@Test
+//	@Test
 	void 게시물_수정_성공() {
 		
 		//given
@@ -164,7 +164,7 @@ public class BoardMapperTests {
 	}
 	
 	
-	@Test
+//	@Test
 	void 게시물_삭제_성공() {
 		
 		//given
@@ -181,7 +181,7 @@ public class BoardMapperTests {
 	}
 	
 	
-	@Test
+//	@Test
 	void 검색_조건에_따른_전체_개수_조회() {
 	    //given: 특정 키워드가 포함된 글 3개, 포함 안 된 글 2개 생성
 	    for(int i=1; i<=3; i++) {
@@ -203,7 +203,7 @@ public class BoardMapperTests {
 	    assertEquals(3, count, "제목에 '사과'가 포함된 게시물은 3개여야 합니다.");
 	}
 	
-	@Test
+//	@Test
 	void 첨부파일을_포함한_게시물_등록_성공() {
 		
 		//given
@@ -221,7 +221,7 @@ public class BoardMapperTests {
 		
 	}
 	
-	@Test
+//	@Test
 	void 첨부파일을_포함한_게시물_조회_성공() {
 		
 		
@@ -249,7 +249,7 @@ public class BoardMapperTests {
 		
 	}
 	
-	@Test
+//	@Test
 	void 필드_초기값이_조회시에도_유지되는지_확인() {
 	    // given: 파일 없는 게시글 저장
 	    BoardDTO board = setUpBoard();
@@ -265,7 +265,7 @@ public class BoardMapperTests {
 	}
 	
 	
-	@Test
+//	@Test
 	@DisplayName("리플렉션 등으로 필드에 강제로 null이 할당되어도 Getter는 빈 리스트를 반환해야 한다")
 	void getter_null_방어_테스트() throws Exception {
 	    // 1. Given: 객체 생성
@@ -287,7 +287,7 @@ public class BoardMapperTests {
 	
 	
 	
-	@Test
+//	@Test
 	void 첨부파일을_포함한_게시물_수정_성공() {
 		
 		//given

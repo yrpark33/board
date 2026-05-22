@@ -35,7 +35,7 @@
 						</div>
 						<div class="input-group input-group-lg mb-3">
 							<div class="input-group-prepend"><span class="input-group-text">작성자</span></div>
-							<input type="text" class="form-control" value="<c:out value='${board.writer}'/>" readonly/>
+							<input type="text" name="writer" class="form-control" value="<c:out value='${board.writer}'/>" readonly/>
 						</div>
 						<div class="input-group input-group-lg mb-3">
 							<div class="input-group-prepend"><span class="input-group-text">작성 시간</span></div>	
