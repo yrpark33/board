@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.oolong.mapper.AccountMapper">
+	
+	<insert id="insert">
+		INSERT INTO tbl_account(username, password, name, email)
+		VALUES(#{username}, #{password}, #{name}, #{email})
+	</insert>
+	
+	<insert id="insertRoles">
+		INSERT INTO tbl_account_roles(username, rolename)
+		VALUES
+		<foreach collection="roleNames" item="role" separator=",">
+			(#{username}, #{role})
+		</foreach>
+	</insert>
+	
+	<resultMap type="AccountDTO" id="selectMap">
+		<id property="username" column="username"/>
+		<result property="password" column="password"/>
+		<result property="name" column="name"/>
+		<result property="email" column="email"/>
+		<result property="enabled" column="enabled"/>
+		<collection property="roleNames" ofType="AccountRole">
+			<result column="rolename" typeHandler="org.apache.ibatis.type.EnumTypeHandler" javaType="AccountRole"/>
+		</collection>
+	</resultMap>
+	
+	
+	<select id="selectOne" resultMap="selectMap">
+		SELECT a.username, password, name, email, rolename, enabled FROM tbl_account a
+		LEFT JOIN tbl_account_roles r
+		ON a.username = r.username
+		WHERE a.username = #{username}
+	</select>
+	
+</mapper>

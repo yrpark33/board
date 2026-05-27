@@ -2,6 +2,8 @@ package org.oolong.controller.advice;
 
 import org.oolong.service.exception.ApplicationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -20,7 +22,14 @@ public class CommentControllerAdvice {
 	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<String> handleAll(Exception ex) {
+		
+		
+		if(ex instanceof AuthenticationException || ex instanceof AccessDeniedException) {
+	        throw new RuntimeException(ex);
+	    }
+		
 		log.error("Internal Server Error: ", ex);
+		
 		return ResponseEntity.status(500).body("서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.");
 	}
 }

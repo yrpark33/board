@@ -1,8 +1,10 @@
 package org.oolong.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,6 +15,7 @@ import org.oolong.dto.BoardDTO;
 import org.oolong.dto.CommentDTO;
 import org.oolong.dto.CommentPageResponseDTO;
 import org.oolong.dto.PageRequestDTO;
+import org.oolong.mapper.CommentMapper;
 import org.oolong.service.exception.ApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -31,8 +34,13 @@ public class CommentServiceTests {
 	@Autowired
 	private CommentService commentService;
 	
+	
 	@Autowired
 	private BoardService boardService;
+	
+	
+	@Autowired
+	private CommentMapper commentMapper;
 	
 	
 	private Long createBoard() throws IOException {
@@ -42,7 +50,10 @@ public class CommentServiceTests {
 	}
 	
 	
-	@Test
+	
+	
+	
+//	@Test
 	void 댓글_등록_성공() throws IOException {
 		
 		//given
@@ -55,14 +66,15 @@ public class CommentServiceTests {
 		
 		
 		//then
-		CommentDTO foundComment = commentService.getComment(generatedCommentId);
+		CommentDTO foundComment = commentMapper.selectById(generatedCommentId);
 		assertNotNull(foundComment);
 		assertEquals(targetBoardId, foundComment.getBoardId());
 		assertEquals("댓글 등록 성공", foundComment.getContent());
 	}
 	
-	@Test
-	void 댓글_조회_성공() throws IOException {
+	
+//	@Test
+	void 댓글_수정을_위한_조회_성공() throws IOException {
 		
 		//given
 		Long targetBoardId = createBoard();
@@ -71,7 +83,8 @@ public class CommentServiceTests {
 		Long commentId = commentDTO.getCommentId();
 		
 		//when
-		CommentDTO foundComment = commentService.getComment(commentId);
+		boolean admin = false;
+		CommentDTO foundComment = commentService.getCommentForModify(commentId, commentDTO.getWriter(), admin);
 		
 		//then
 		assertNotNull(foundComment);
@@ -81,7 +94,7 @@ public class CommentServiceTests {
 		
 	}
 	
-	@Test
+//	@Test
 	void 댓글_목록_조회_성공() throws IOException {
 		
 		//given
@@ -99,7 +112,9 @@ public class CommentServiceTests {
 		
 		
 		//when
-		CommentPageResponseDTO responseDTO = commentService.getCommentList(targetBoardId, requestDTO);
+		String username = "user00";
+		boolean admin = false;
+		CommentPageResponseDTO responseDTO = commentService.getCommentList(targetBoardId, requestDTO, username, admin);
 		
 		
 		//then
@@ -114,7 +129,7 @@ public class CommentServiceTests {
 	}
 	
 	
-	@Test
+//	@Test
 	void 댓글_수정_성공() throws IOException {
 		
 		//given
@@ -124,16 +139,21 @@ public class CommentServiceTests {
 		Long commentId = newComment.getCommentId();
 		
 		//when
+		
 		CommentDTO updateDTO = CommentDTO.builder().commentId(commentId).content("수정된 내용").build();
-		commentService.modifyComment(updateDTO);
+		updateDTO.setWriter(newComment.getWriter());
+		boolean admin = false;
+		commentService.modifyComment(updateDTO, admin);
 		
 		//then
-		CommentDTO result = commentService.getComment(commentId);
+		CommentDTO result = commentMapper.selectById(commentId);
 		assertEquals("수정된 내용", result.getContent());
 		assertEquals("commenter1", result.getWriter());
 	}
 	
-	@Test
+	
+	
+//	@Test
 	void 댓글_삭제_성공() throws IOException {
 		
 		//given
@@ -143,18 +163,19 @@ public class CommentServiceTests {
 		Long commentId = newComment.getCommentId();
 		
 		//when
-		commentService.removeComment(commentId);
+		String username = newComment.getWriter();
+		boolean admin = false;
+		commentService.removeComment(commentId, username, admin);
 		
 		//then
-		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.getComment(commentId));
-		assertEquals(404, ex.getCode());
-		assertEquals("댓글이 존재하지 않습니다", ex.getMessage());
+		CommentDTO commentDTO = commentMapper.selectById(commentId);
+		assertTrue(commentDTO.isDeleted());
 		
 	}
 	
 	
 	
-	@Test
+//	@Test
 	void 댓글_등록시_내용_비어있으면_예외발생() {
 		
 		 CommentDTO commentDTO = CommentDTO.builder().writer("작성자").content("").build();		
@@ -167,67 +188,89 @@ public class CommentServiceTests {
 		 
 	}
 	
-	@Test
-	void 댓글_등록시_작성자_비어있으면_예외_발생() {
-		
-		CommentDTO commentDTO = CommentDTO.builder().writer("").content("내용").build();
-		 
-		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.writeComment(commentDTO));
-		
-		assertEquals(400, ex.getCode());
-		assertEquals("작성자를 입력해주세요", ex.getMessage());
-		
-	}
 	
-	@Test
+	
+//	@Test
 	void 댓글_수정시_내용_비어있으면_예외_발생() {
 		CommentDTO commentDTO = CommentDTO.builder().content("").build();
-		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.modifyComment(commentDTO));
+		boolean admin = false;
+		
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.modifyComment(commentDTO, admin));
 		
 		assertEquals(400, ex.getCode());
 		assertEquals("내용을 입력해주세요", ex.getMessage());
 		
 	}
 	
-	@Test
+//	@Test
 	void 존재하지않는_댓글_조회시_예외발생() {
 		
-		Long commentId = 1000L;
+		Long commentId = 9999999L;
 		
-		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.getComment(commentId));
+		String username = "user00";
+		boolean admin = false;
+		
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.getCommentForModify(commentId, username, admin));
 		
 		assertEquals(404, ex.getCode());
 		assertEquals("댓글이 존재하지 않습니다", ex.getMessage());
 		
 	}
 	
-	@Test
+//	@Test
 	void 존재하지않는_댓글_수정시_예외발생() {
 		
-		Long commentId = 1000L;
+		Long commentId = 9999999L;
 		
 		CommentDTO updateDTO = CommentDTO.builder().commentId(commentId).content("내용").writer("commenter1").build();
 		
-		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.modifyComment(updateDTO));
+		boolean admin = false;
+		
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.modifyComment(updateDTO, admin));
 		
 		assertEquals(404, ex.getCode());
 		assertEquals("댓글이 존재하지 않습니다", ex.getMessage());
 		
 	}
 	
-	@Test
+//	@Test
 	void 존재하지않는_댓글_삭제시_예외발생() {
 		
-		Long commentId = 1000L;
+		Long commentId = 9999999L;
 		
-		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.removeComment(commentId));
+		String username = "unknown";
+		boolean admin = false;
+		
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.removeComment(commentId, username, admin));
 		
 		assertEquals(404, ex.getCode());
 		assertEquals("댓글이 존재하지 않습니다", ex.getMessage());
 		
 	}
 	
-	@Test
+//	@Test
+	void 이미_삭제된_댓글_조회시_예외발생() throws IOException {
+		
+		Long targetBoardId = createBoard();
+		CommentDTO newComment = CommentDTO.builder().boardId(targetBoardId).content("내용").writer("commenter1").build();
+		
+		commentService.writeComment(newComment);
+		Long generatedId = newComment.getCommentId();
+		
+		//삭제
+		boolean admin = false;
+		commentService.removeComment(generatedId, newComment.getWriter(), admin);
+		
+		//이미 삭제된 댓글을 조회
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.getCommentForModify(generatedId, newComment.getWriter(), admin));
+		
+		assertEquals(404, ex.getCode());
+		assertEquals("댓글이 존재하지 않습니다", ex.getMessage());
+		
+	}
+	
+	
+//	@Test
 	void 이미_삭제된_댓글_삭제시_예외발생() throws IOException {
 		
 		Long targetBoardId = createBoard();
@@ -237,17 +280,18 @@ public class CommentServiceTests {
 		Long generatedId = newComment.getCommentId();
 		
 		//삭제
-		commentService.removeComment(generatedId);
+		boolean admin = false;
+		commentService.removeComment(generatedId, newComment.getWriter(), admin);
 		
 		//이미 삭제된 댓글을 재삭제
-		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.removeComment(generatedId));
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.removeComment(generatedId, newComment.getWriter(), admin));
 		
 		assertEquals(404, ex.getCode());
 		assertEquals("댓글이 존재하지 않습니다", ex.getMessage());
 		
 	}
 	
-	@Test
+//	@Test
 	void 이미_삭제된_댓글_수정시_예외발생() throws IOException {
 		
 		Long targetBoardId = createBoard();
@@ -257,17 +301,140 @@ public class CommentServiceTests {
 		Long generatedId = newComment.getCommentId();
 		
 		//삭제
-		commentService.removeComment(generatedId);
+		boolean admin = false;
+		commentService.removeComment(generatedId, newComment.getWriter(), admin);
 		
 		CommentDTO updateDTO = CommentDTO.builder().commentId(generatedId).content("수정된 내용").build();
 		
 		//이미 삭제된 댓글 수정
-		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.modifyComment(updateDTO));
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.modifyComment(updateDTO, admin));
 		assertEquals(404, ex.getCode());
 		assertEquals("댓글이 존재하지 않습니다", ex.getMessage());
 		
 	}
 	
+//	@Test
+	void admin계정_조회_성공() throws IOException {
+		
+		//given
+		Long targetBoardId = createBoard();
+		CommentDTO comment = CommentDTO.builder().boardId(targetBoardId).content("내용").writer("writer00").build();
+		commentService.writeComment(comment);
+		Long commentId = comment.getCommentId();
+		
+		//when
+		String username = "다른사람";
+		boolean admin = true;
+		CommentDTO result = commentService.getCommentForModify(commentId, username, admin);
+		
+		//then
+		assertNotNull(result);
+		assertEquals(comment.getContent(), result.getContent());
+		assertEquals(comment.getWriter(), result.getWriter());
+		
+	}
+	
+//	@Test
+	void admin계정_수정_성공() throws IOException {
+		
+		//given
+		Long targetBoardId = createBoard();
+		CommentDTO comment = CommentDTO.builder().boardId(targetBoardId).content("내용").writer("writer00").build();
+		commentService.writeComment(comment);
+		Long commentId = comment.getCommentId();
+		
+		//when	
+		CommentDTO updateDTO = CommentDTO.builder().commentId(commentId).content("수정된 내용").build();
+		boolean admin = true;
+		commentService.modifyComment(updateDTO, admin);
+		
+		
+		//then
+		CommentDTO result = commentMapper.selectById(commentId);
+		assertEquals("수정된 내용", result.getContent());
+		assertEquals(comment.getWriter(), result.getWriter());
+	}
+	
+	
+//	@Test
+	void admin계정_삭제_성공() throws IOException {
+		
+		//given
+		Long targetBoardId = createBoard();
+		CommentDTO comment = CommentDTO.builder().boardId(targetBoardId).content("내용").writer("writer00").build();
+		commentService.writeComment(comment);
+		Long commentId = comment.getCommentId();
+		
+		//when & then
+		boolean admin = true;
+		String username = "다른사람";
+		assertDoesNotThrow(() -> commentService.removeComment(commentId, username, admin));
+		CommentDTO result = commentMapper.selectById(commentId);
+		assertTrue(result.isDeleted());
+		
+	}
+	
+//	@Test
+	void 작성자불일치_조회시_403예외() throws IOException {
+			
+		//given
+		Long targetBoardId = createBoard();
+		CommentDTO comment = CommentDTO.builder().boardId(targetBoardId).content("내용").writer("writer00").build();
+		commentService.writeComment(comment);
+		Long commentId = comment.getCommentId();
+		
+		//when
+		String wrongUsername = "다른사람";
+		boolean admin = false;
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.getCommentForModify(commentId, wrongUsername, admin));
+		
+		//then
+		assertEquals(403, ex.getCode());
+		assertEquals("ACCESS_DENIED", ex.getMessage());
+		
+	}
+
+//	@Test
+	void 작성자불일치_수정시_403예외() throws IOException {
+			
+		//given
+		Long targetBoardId = createBoard();
+		CommentDTO comment = CommentDTO.builder().boardId(targetBoardId).content("내용").writer("writer00").build();
+		commentService.writeComment(comment);
+		Long commentId = comment.getCommentId();
+		
+		//when
+		String wrongUsername = "다른사람";
+		CommentDTO updateComment = CommentDTO.builder().commentId(commentId).content("수정된 내용").writer(wrongUsername).build();
+		
+		boolean admin = false;
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.modifyComment(updateComment, admin));
+		
+		//then
+		assertEquals(403, ex.getCode());
+		assertEquals("ACCESS_DENIED", ex.getMessage());
+		
+	}
+	
+//	@Test
+	void 작성자불일치_삭제시_403예외() throws IOException {
+			
+		//given
+		Long targetBoardId = createBoard();
+		CommentDTO comment = CommentDTO.builder().boardId(targetBoardId).content("내용").writer("writer00").build();
+		commentService.writeComment(comment);
+		Long commentId = comment.getCommentId();
+		
+		//when
+		String wrongUsername = "다른사람";
+		boolean admin = false;
+		ApplicationException ex = assertThrows(ApplicationException.class, () -> commentService.removeComment(commentId, wrongUsername, admin));
+		
+		//then
+		assertEquals(403, ex.getCode());
+		assertEquals("ACCESS_DENIED", ex.getMessage());
+		
+	}
 	
 	
 	

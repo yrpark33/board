@@ -107,6 +107,21 @@
 	    <version>0.4.20</version>
 	    <scope>compile</scope>
 	</dependency>
+	<dependency>
+	    <groupId>org.springframework.security</groupId>
+	    <artifactId>spring-security-config</artifactId>
+	    <version>6.2.4</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.springframework.security</groupId>
+	    <artifactId>spring-security-web</artifactId>
+	    <version>6.2.4</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.springframework.security</groupId>
+	    <artifactId>spring-security-taglibs</artifactId>
+	    <version>6.2.4</version>
+	</dependency>
   </dependencies>
   <build>
     <plugins>
@@ -115,6 +130,9 @@
         <version>3.13.0</version>
         <configuration>
           <release>17</release>
+          <compilerArgs>
+          	<arg>-parameters</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>
