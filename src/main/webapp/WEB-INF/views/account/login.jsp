@@ -117,6 +117,12 @@
 				<label for="password">비밀번호:</label>
 				<input type="password" id="password" name="password" required>
 			</div>
+			<div class="form-group">
+				<label>
+					<input type="checkbox" name="remember-me">
+					로그인 상태 유지
+				</label>
+			</div>
 			<button type="submit">로그인</button>
 		</form>
 	</div>

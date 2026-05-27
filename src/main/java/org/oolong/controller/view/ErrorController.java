@@ -15,4 +15,13 @@ public class ErrorController {
 		
 	}
 	
+	@GetMapping("404")
+	public void error404() {
+	}
+
+	@GetMapping("500")
+	public void error500() {
+		
+	}
+	
 }

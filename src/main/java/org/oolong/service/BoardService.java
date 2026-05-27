@@ -38,6 +38,7 @@ public class BoardService {
 	private final ObjectMapper objectMapper;
 	
 	
+	
 	@Transactional(readOnly = true)
 	public BoardPageResponseDTO getBoardList(BoardPageRequestDTO dto) {
 			
@@ -114,25 +115,25 @@ public class BoardService {
 	public BoardDTO getBoard(Long boardId) {
 		log.debug("getBoard boardId: {}", boardId);
 		BoardDTO dto = boardMapper.selectById(boardId);
+		
 		if(dto == null) {
 			throw new ApplicationException(404, "BOARD_NOT_FOUND");
 		}
+		
+		
 		return dto;
 	}
 	
 	
-	public void removeBoard(Long boardId) {
-		log.info("removeBoard boardId: {}", boardId);
-		
-		int count = boardMapper.delete(boardId);
-		
-		if(count == 0) {
-			throw new ApplicationException(404, "BOARD_NOT_FOUND");
-		}
-		
-		boardMapper.updateFilesAsDeleted(boardId);
-		
+
+	@Transactional(readOnly = true)
+	public BoardDTO getBoardForModify(String username, Long boardId, boolean admin) {
+	    BoardDTO dto = boardMapper.selectById(boardId);
+	    if (dto == null) throw new ApplicationException(404, "BOARD_NOT_FOUND");
+	    if (!username.equals(dto.getWriter()) && !admin) throw new ApplicationException(403, "ACCESS_DENIED");
+	    return dto;
 	}
+	
 	
 	
 	
@@ -148,10 +149,17 @@ public class BoardService {
 	    }
 	}
 	
-	public void modifyBoard(BoardDTO boardDTO, String oldFileInfosJson, String deletedFileInfosJson, MultipartFile[] addedFiles) throws IOException {
+	public void modifyBoard(BoardDTO boardDTO, String oldFileInfosJson, String deletedFileInfosJson, MultipartFile[] addedFiles, boolean admin) throws IOException {
 		
-		if(boardMapper.selectById(boardDTO.getBoardId()) == null) {
+		BoardDTO foundBoard = boardMapper.selectById(boardDTO.getBoardId());
+		
+		if(foundBoard == null) {
 			throw new ApplicationException(404, "BOARD_NOT_FOUND");
+		}
+		
+		
+		if(!admin && !foundBoard.getWriter().equals(boardDTO.getWriter())) {
+			throw new ApplicationException(403, "ACCESS_DENIED");
 		}
 		
 		
@@ -220,7 +228,25 @@ public class BoardService {
 		}
 	}
 	
-	
+
+	public void removeBoard(String username, Long boardId, boolean admin) {
+		log.info("removeBoard boardId: {}", boardId);
+		
+		BoardDTO boardDTO = boardMapper.selectById(boardId);
+		
+		if(boardDTO == null) {
+			throw new ApplicationException(404, "BOARD_NOT_FOUND");
+		}
+		
+		if(!username.equals(boardDTO.getWriter()) && !admin) {
+			throw new ApplicationException(403, "ACCESS_DENIED");
+		}
+		
+		boardMapper.delete(boardId);
+		
+		boardMapper.updateFilesAsDeleted(boardId);
+		
+	}
 	
 	
 	

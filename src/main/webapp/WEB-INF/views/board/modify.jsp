@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@include file="/WEB-INF/views/includes/header.jsp" %>
 	
 	<div class="row justify-content-center">
@@ -35,7 +37,7 @@
 						</div>
 						<div class="input-group input-group-lg mb-3">
 							<div class="input-group-prepend"><span class="input-group-text">작성자</span></div>
-							<input type="text" name="writer" class="form-control" value="<c:out value='${board.writer}'/>" readonly/>
+							<input type="text" class="form-control" value="<c:out value='${board.writer}'/>" readonly/>
 						</div>
 						<div class="input-group input-group-lg mb-3">
 							<div class="input-group-prepend"><span class="input-group-text">작성 시간</span></div>	
@@ -64,8 +66,14 @@
 					</form>
 					<div class="float-right">
 						<a class="btn btn-info" href="/board/list?${dto.toQueryString()}">목록</a>
-						<button type="submit" form="modifyForm" class="btn btn-warning">수정</button>
-						<button type="button" class="btn btn-danger btnRemove">삭제</button>
+						
+						<sec:authentication property="principal" var="secInfo"/>
+						<sec:authentication property="authorities" var="roles"/>
+						
+						<c:if test="${!board.deleted && (secInfo.username == board.writer || fn:contains(roles, 'ROLE_ADMIN'))}">
+							<button type="submit" form="modifyForm" class="btn btn-warning">수정</button>
+							<button type="button" form="modifyForm" class="btn btn-danger btnRemove">삭제</button>
+						</c:if>
 					</div>
 				</div>
 			</div>
@@ -88,11 +96,15 @@
 			
 			let fileState = [];
 			
+			
 			btnRemove.addEventListener('click', () => {
-				formObj.action = '/board/remove'
-				formObj.method = 'post'
-				formObj.submit()
-			})
+				
+				if(!confirm('정말 삭제하시겠습니까?')) return;
+				
+                formObj.action = '/board/remove'
+                formObj.method = 'post'
+                formObj.submit()
+            }) 
 			
 			
 			function initFileState() {
@@ -158,141 +170,7 @@
 			
 			
 			
-			/* formObj.addEventListener('submit', (e) => {
-					
-				e.preventDefault()
-					
-					
-				if(boardFiles) {
-				
-					const fileArr = document.querySelectorAll('.boardFiles button')
-					
-					
-					if(fileArr && fileArr.length > 0) {
-						
-						
-						const fileDataArray = Array.from(fileArr).map(file => ({
-							uuid: file.getAttribute('data-uuid'),
-							fileName: file.getAttribute('data-filename'),
-							image: file.getAttribute('data-image') === 'true'
-						}))
-						
-						const oldFileStr = JSON.stringify(fileDataArray)
-						const oldFileInput = `<input type='hidden' name='oldFileInfosJson' value='\${oldFileStr}'/>`
-						formObj.insertAdjacentHTML('beforeend', oldFileInput)
-						
-					}
-				}
-				
-				
-				const deletedFileList = Array.from(deletedFileUuids).map(uuid => {
-					
-					const btn = document.querySelector(`button[data-uuid="\${uuid}"]`)
-					return {
-						uuid: uuid,
-						fileName: btn.getAttribute('data-filename'),
-						image: btn.getAttribute('data-image') === 'true'
-					}
-					
-				})
-				
-				
-				if (deletedFileList.length > 0) {
-					const deletedFileStr = JSON.stringify(deletedFileList)
-					
-					const deletedFileInput = `<input type='hidden' name='deletedFileInfosJson' value='\${deletedFileStr}'/>`
-					formObj.insertAdjacentHTML('beforeend', deletedFileInput)
-					
-					
-				}
-				
-				
-					
-				formObj.action = '/board/modify'
-				formObj.method = 'post'
-				formObj.submit()
-				
-					
-			}) */
 			
-			
-			
-			
-			
-			
-			
-			
-			
-			/* formObj.addEventListener('submit', (e) => {
-					
-				e.preventDefault()
-					
-					
-				if(boardFiles) {
-				
-					const fileArr = document.querySelectorAll('.boardFiles button')
-					
-					
-					if(fileArr) {
-						
-						let str = ''
-						
-						for(let file of fileArr) {
-							
-							const uuid = file.getAttribute('data-uuid')
-							const fileName = file.getAttribute('data-filename')
-							const image = file.getAttribute('data-image')
-							
-							const oldFileInfo = `\${uuid}|\${fileName}|\${image}`
-							
-							str += `<input type='hidden' name='oldFileInfos' value='\${oldFileInfo}'/>`
-							
-						}
-						
-						formObj.insertAdjacentHTML('beforeend', str)
-						
-						
-					}
-				}
-					
-				formObj.action = '/board/modify'
-				formObj.method = 'post'
-				formObj.submit()
-					
-					
-			})
- */			
-			
-			/* if(boardFiles) {
-			
-				document.querySelector('.boardFiles').addEventListener('click', (e) => {
-					
-					e.preventDefault()
-					
-					
-					const target = e.target
-					
-					
-					const fileName = target.getAttribute('data-filename')
-					
-					if(!fileName) return
-					
-					const uuid = target.getAttribute('data-uuid')
-					const image = target.getAttribute('data-image')
-					
-					const divObj = target.closest('.col-md-3')
-					
-					divObj.remove()
-					
-					const deletedFileInfo = `\${uuid}|\${fileName}|\${image}`
-					
-					let str = `<input type="hidden" name="deletedFileInfos" value='\${deletedFileInfo}'/>`
-					
-					formObj.insertAdjacentHTML('beforeend', str)
-					
-					
-				})
-			} */
 			
 })
 		

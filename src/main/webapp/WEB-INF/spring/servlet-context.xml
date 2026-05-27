@@ -15,7 +15,11 @@
 			https://www.springframework.org/schema/security/spring-security.xsd
 			">
 
-	<mvc:annotation-driven/>
+	<mvc:annotation-driven>
+		<mvc:argument-resolvers>
+			<bean class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver"/>
+		</mvc:argument-resolvers>
+	</mvc:annotation-driven>
 	
 	<context:component-scan base-package="org.oolong.controller"></context:component-scan>
 	

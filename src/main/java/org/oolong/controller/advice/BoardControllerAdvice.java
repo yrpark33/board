@@ -29,6 +29,10 @@ public class BoardControllerAdvice {
 	        case 500:
 	            msg = "서버 오류가 발생했습니다.";
 	            break;
+	        case 403:
+	        	msg = "접근 권한이 없습니다.";
+	        	rttr.addFlashAttribute("errorMsg", msg);
+	        	return "redirect:/";
 	        default:
 	            msg = "알 수 없는 오류가 발생했습니다.";
 	    }

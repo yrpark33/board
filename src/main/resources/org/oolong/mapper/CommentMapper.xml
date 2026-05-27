@@ -12,7 +12,7 @@
 	
 	<select id="selectById" resultType="CommentDTO">
 		SELECT * FROM tbl_comment
-		WHERE comment_id = #{commentId} AND deleted = FALSE
+		WHERE comment_id = #{commentId}
 	</select>
 	
 	<update id="delete">

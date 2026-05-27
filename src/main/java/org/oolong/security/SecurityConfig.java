@@ -1,5 +1,8 @@
 package org.oolong.security;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -14,6 +19,9 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @EnableWebSecurity
 public class SecurityConfig {
+	
+	@Autowired
+	DataSource dataSource;
 	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -27,6 +35,11 @@ public class SecurityConfig {
 			
 		});
 		
+		http.rememberMe(config -> {
+			config.tokenRepository(persistentTokenRepository());
+			config.tokenValiditySeconds(60*60*24*30);
+		});
+		
 		
 		http.csrf(config -> {
 			config.disable();
@@ -38,6 +51,9 @@ public class SecurityConfig {
 			
 		});
 		
+		http.logout(config -> {
+			config.deleteCookies("JSESSIONID", "remember-me");
+		});
 		
 		
 		return http.build();
@@ -48,6 +64,17 @@ public class SecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		
 		return new BCryptPasswordEncoder();
+		
+	}
+	
+	@Bean
+	public PersistentTokenRepository persistentTokenRepository() {
+		
+		JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+		
+		tokenRepository.setDataSource(dataSource);
+		
+		return tokenRepository;
 		
 	}
 	

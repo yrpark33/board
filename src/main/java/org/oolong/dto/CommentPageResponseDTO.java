@@ -10,10 +10,16 @@ public class CommentPageResponseDTO extends PageResponseDTO {
 	
 	private List<CommentDTO> commentDTOList;
 	
-	public CommentPageResponseDTO(List<CommentDTO> commentDTOList, int page, int size, int totalCount) {
+	private String username;
+	
+	private boolean admin;
+	
+	public CommentPageResponseDTO(List<CommentDTO> commentDTOList, int page, int size, int totalCount, String username, boolean admin) {
 		
 		super(page, size, totalCount);
 		this.commentDTOList = commentDTOList;
+		this.username = username;
+		this.admin = admin;
 		
 	}
 

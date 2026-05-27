@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@include file="/WEB-INF/views/includes/header.jsp" %>
 	<div class="row justify-content-center">
 		<div class="col-lg-12">
@@ -48,7 +50,11 @@
 					
 					<div class="float-right">
 						<a class="btn btn-info" href="/board/list?${dto.toQueryString()}">목록</a>
-						<a class="btn btn-warning" href="/board/modify/${board.boardId}?${dto.toQueryString()}">수정</a>
+						<sec:authentication property="principal" var="secInfo"/>
+						<sec:authentication property="authorities" var="roles"/>
+						<c:if test="${!board.deleted && (secInfo.username == board.writer || fn:contains(roles, 'ROLE_ADMIN'))}">
+							<a class="btn btn-warning" href="/board/modify/${board.boardId}?${dto.toQueryString()}">수정</a>
+						</c:if>
 					</div>
 				</div>
 			</div>
@@ -61,11 +67,7 @@
 					<form id="commentForm">
 						<input type="hidden" name="boardId" value="${board.boardId}"/>
 						<div class="mb-3 input-group">
-							<div class="input-group-prepend"><span class="input-group-text">작성자</span></div>
-							<input type="text" name="writer" class="form-control" required>
-						</div>
-						<div class="mb-3 input-group">
-							<div class="input-group-prepend"><span class="input-group-text">내용</span></div>
+							<div class="input-group-prepend"><span class="input-group-text">댓글</span></div>
 							<textarea name="content" class="form-control" rows="3" required></textarea>
 						</div>
 						<div class="text-right">
@@ -142,7 +144,6 @@
 	      </div>
 	      <div class="modal-footer">
 	        <button type="submit" form="commentModifyForm" class="btn btn-primary">수정</button>
-	        <button type="button" class="btn btn-danger btnCommentRemove">삭제</button>
 	        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
 	      </div>
 	    </div>
@@ -185,7 +186,7 @@
 		
 		
 		function printComments(data) {
-			const {commentDTOList, page, size, prev, next, start, end, pageNums} = data
+			const {commentDTOList, page, size, prev, next, start, end, pageNums, username, admin} = data
 			
 			let liStr = ''
 			
@@ -196,25 +197,25 @@
 				return
 			}
 			
-			
 			for(commentDTO of commentDTOList) {
 				
+				const canModify = !commentDTO.deleted && (username === commentDTO.writer || admin);
+			
 				liStr += `<li class="list-group-item" commentId="\${commentDTO.commentId}">
-							<div class="d-flex justify-content-between">
-								<div>
-									<strong>\${commentDTO.commentId}</strong> - \${commentDTO.deleted ? '삭제된 댓글입니다.' : commentDTO.content}
-								</div>
-								<div class="text-muted small">
-									\${commentDTO.createdAt}
-								</div>
-							</div>
-							<div class="mt-1 text-secondary small">
-								\${commentDTO.deleted ? '알 수 없음' : commentDTO.writer}
-							</div>
+							<div><strong>\${commentDTO.commentId}</strong> - \${commentDTO.deleted ? '삭제된 댓글입니다.' : commentDTO.content}</div>
+						    <div class="d-flex justify-content-between align-items-center">
+						        <span class="text-muted small">\${commentDTO.deleted ? '알 수 없음' : commentDTO.writer}</span>
+						        <div>
+						            <span class="text-muted small">\${commentDTO.createdAt}</span>
+						            \${canModify ? '<button class="btn btn-sm btn-primary commentModifyBtn">수정</button>' : ''}
+						            \${canModify ? '<button class="btn btn-sm btn-danger commentRemoveBtn">삭제</button>' : ''}
+						        </div>
+						    </div>
 						</li>`
-				
+			
 			}
 			
+
 			commentList.innerHTML = liStr
 			
 			
@@ -295,55 +296,75 @@
 		
 		const commentModifyForm = document.querySelector("#commentModifyForm")
 
-		commentList.addEventListener('click', (e) => {
-			
-			const targetLi = e.target.closest("li")
-			
-			if(!targetLi) return
-			
-			const contentText = targetLi.innerText
-			if(contentText.includes('삭제된 댓글입니다.')) return
-			
-			const commentId = targetLi.getAttribute("commentId")
-			
-			if(!commentId) return
-			
-			axios.get(`/comments/\${commentId}`).then(res => {
+		
+		commentList.addEventListener('click', function(e) {
+		    if(e.target.classList.contains('commentModifyBtn')) {
+		    	
+		    		const commentId = e.target.closest('li').getAttribute('commentId');
+		    		
+		    		
+					if(!commentId) return
+					
+					axios.get(`/comments/\${commentId}`).then(res => {
+						
+						const targetComment = res.data
+						
+						
+						commentModifyForm.querySelector('input[name = "commentId"]').value = targetComment.commentId
+						commentModifyForm.querySelector('input[name = "content"]').value = targetComment.content
+						commentModal.show()
+						
+						
+					}).catch(error => {
+						alert(error.response.data)
+					})
+					
+			}
+		    
+		    
+		    if(e.target.classList.contains('commentRemoveBtn')) {
+			    if(!confirm('정말 삭제하시겠습니까?')) return;
+			}
+		    
+		    
+		    if(e.target.classList.contains('commentRemoveBtn')) {
+						
+				e.preventDefault()
 				
-				const targetComment = res.data
+				
+				const commentId = e.target.closest('li').getAttribute('commentId');
+		    		
+		    		
+				if(!commentId) return
 				
 				
-				commentModifyForm.querySelector('input[name = "commentId"]').value = targetComment.commentId
-				commentModifyForm.querySelector('input[name = "content"]').value = targetComment.content
-				commentModal.show()
 				
 				
-			}).catch(error => {
-				alert(error.response.data)
-			})
-			
+				
+				axios.delete(`/comments/\${commentId}`).then(res => {
+					const data = res.data
+					
+					commentModal.hide()
+					
+					getComments(currentPage)
+					
+				}).catch(error => {
+					alert(error.response.data)
+				})
+				
+			}
+				 
+			 
+		    
+		    
 		})
 		
-		document.querySelector('.btnCommentRemove').addEventListener('click', (e) => {
-			
-			e.preventDefault()
-			
-			const formData = new FormData(commentModifyForm)
-			
-			const commentId = formData.get("commentId")
-			
-			axios.delete(`/comments/\${commentId}`).then(res => {
-				const data = res.data
-				
-				commentModal.hide()
-				
-				getComments(currentPage)
-				
-			}).catch(error => {
-				alert(error.response.data)
-			})
-			
-		})
+		
+	
+		
+		
+		
+		
 		
 		commentModifyForm.addEventListener('submit', (e) => {
 			e.preventDefault()

@@ -25,11 +25,6 @@ public class CommentService {
 	
 	public void writeComment(CommentDTO commentDTO) {
 		
-		if(!StringUtils.hasText(commentDTO.getWriter())) {
-			
-			throw new ApplicationException(400, "작성자를 입력해주세요");
-			
-		}
 		
 		if(!StringUtils.hasText(commentDTO.getContent())) {
 			
@@ -47,22 +42,29 @@ public class CommentService {
 	}
 	
 	@Transactional(readOnly = true)
-	public CommentDTO getComment(Long commentId) {
+	public CommentDTO getCommentForModify(Long commentId, String username, boolean admin) {
 
 		
 		log.debug("getComment commentId: {}", commentId);
 		
+		
 		CommentDTO dto = commentMapper.selectById(commentId);
 		
-		if(dto == null) {
+		if(dto == null || dto.isDeleted()) {
 			throw new ApplicationException(404, "댓글이 존재하지 않습니다");
+		}
+		
+		if(!username.equals(dto.getWriter()) && !admin) {
+			
+			throw new ApplicationException(403, "ACCESS_DENIED");
+			
 		}
 		
 		return dto;
 		
 	}
 	
-	public void modifyComment(CommentDTO commentDTO) {
+	public void modifyComment(CommentDTO commentDTO, boolean admin) {
 		
 		if(!StringUtils.hasText(commentDTO.getContent())) {
 			throw new ApplicationException(400, "내용을 입력해주세요");
@@ -70,28 +72,43 @@ public class CommentService {
 		
 		log.info("modifyComment commentDTO: {}", commentDTO);
 		
-		int count = commentMapper.update(commentDTO);
-			
-		if(count == 0) {
+		
+		CommentDTO dto = commentMapper.selectById(commentDTO.getCommentId());
+		
+		if(dto == null || dto.isDeleted()) {
 			throw new ApplicationException(404, "댓글이 존재하지 않습니다");
 		}
 		
+		
+		if(!admin && !commentDTO.getWriter().equals(dto.getWriter())) {
+			throw new ApplicationException(403, "ACCESS_DENIED");
+		}
+		
+		commentMapper.update(commentDTO);
+		
 	}
 	
-	public void removeComment(Long commentId) {
+	public void removeComment(Long commentId, String username, boolean admin) {
 		
 		log.info("removeComment commentId: {}", commentId);
 		
+		CommentDTO dto = commentMapper.selectById(commentId);
 		
-		int count = commentMapper.delete(commentId);
-			
-		if(count == 0) {
+		if(dto == null || dto.isDeleted()) {
 			throw new ApplicationException(404, "댓글이 존재하지 않습니다");
 		}
+		
+		if(!username.equals(dto.getWriter()) && !admin) {
+			throw new ApplicationException(403, "ACCESS_DENIED");
+		}
+		
+		commentMapper.delete(commentId);
+			
+		
 	}
 	
 	@Transactional(readOnly = true)
-	public CommentPageResponseDTO getCommentList(Long boardId, PageRequestDTO pageRequestDTO) {
+	public CommentPageResponseDTO getCommentList(Long boardId, PageRequestDTO pageRequestDTO, String username, boolean admin) {
 		
 		int page = pageRequestDTO.getPage();
 		
@@ -113,7 +130,7 @@ public class CommentService {
 		int totalCount = commentMapper.selectTotalCount(boardId);
 		
 		
-		return new CommentPageResponseDTO(commentDTOList, page, size, totalCount);
+		return new CommentPageResponseDTO(commentDTOList, page, size, totalCount, username, admin);
 		
 	}
 	
