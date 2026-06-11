@@ -76,8 +76,22 @@
 		<p>정말로 로그아웃 하시겠습니까?</p>
 			
 			<form action="/logout" method="post">
+				<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 				<button class="logout-button">로그아웃</button>
+				<button class="cancel-button">취소</button>
 			</form>
 	</div>
 </body>
+
+<script>
+	document.querySelector('.cancel-button').addEventListener('click', function(e) {
+		
+		e.preventDefault()
+		
+		history.back()
+		
+	})
+	
+</script>
+
 </html>

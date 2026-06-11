@@ -11,7 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oolong.dto.BoardDTO;
-import org.oolong.dto.BoardFileDTO;
+import org.oolong.dto.FileDTO;
 import org.oolong.dto.BoardListDTO;
 import org.oolong.dto.CommentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class BoardMapperTests {
 		return board;
 	}
 	
-//	@Test
+	@Test
 	void 게시물_등록_성공() {
 		
 		//given
@@ -59,7 +59,7 @@ public class BoardMapperTests {
 		assertEquals("user00", savedBoard.getWriter());
 	}
 	
-//	@Test
+	@Test
 	void 게시물_조회_성공() {
 		
 		
@@ -77,7 +77,7 @@ public class BoardMapperTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 게시물_페이징_및_검색_기능_테스트() {
 		
 		//given
@@ -109,8 +109,8 @@ public class BoardMapperTests {
 				board.setTitle(keyword + " [첨부파일] 제목 " + i);
 				boardMapper.insert(board);
 				
-				board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("_test1_.jpg").sortOrder(0).image(true).build());
-				board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("_test2_.jpg").sortOrder(1).image(true).build());
+				board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("_test1_.jpg").sortOrder(0).image(true).build());
+				board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("_test2_.jpg").sortOrder(1).image(true).build());
 				boardMapper.insertFiles(board);
 				
 			} else {
@@ -142,7 +142,7 @@ public class BoardMapperTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 게시물_수정_성공() {
 		
 		//given
@@ -164,7 +164,7 @@ public class BoardMapperTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 게시물_삭제_성공() {
 		
 		//given
@@ -181,7 +181,7 @@ public class BoardMapperTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 검색_조건에_따른_전체_개수_조회() {
 	    //given: 특정 키워드가 포함된 글 3개, 포함 안 된 글 2개 생성
 	    for(int i=1; i<=3; i++) {
@@ -203,13 +203,13 @@ public class BoardMapperTests {
 	    assertEquals(3, count, "제목에 '사과'가 포함된 게시물은 3개여야 합니다.");
 	}
 	
-//	@Test
+	@Test
 	void 첨부파일을_포함한_게시물_등록_성공() {
 		
 		//given
 		BoardDTO board = setUpBoard();
-		board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("test1.jpg").sortOrder(0).image(true).build());
-		board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("test2.jpg").sortOrder(1).image(true).build());
+		board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("test1.jpg").sortOrder(0).image(true).build());
+		board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("test2.jpg").sortOrder(1).image(true).build());
 		
 		//when
 		boardMapper.insertFiles(board);
@@ -221,7 +221,7 @@ public class BoardMapperTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 첨부파일을_포함한_게시물_조회_성공() {
 		
 		
@@ -231,8 +231,8 @@ public class BoardMapperTests {
 		String uuid1 = UUID.randomUUID().toString();
 		String uuid2 = UUID.randomUUID().toString();
 		
-		board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(uuid1).fileName("select1.jpg").sortOrder(0).image(true).build());
-		board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(uuid2).fileName("select2.jpg").sortOrder(1).image(true).build());
+		board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(uuid1).fileName("select1.jpg").sortOrder(0).image(true).build());
+		board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(uuid2).fileName("select2.jpg").sortOrder(1).image(true).build());
 		
 		
 		boardMapper.insertFiles(board);
@@ -249,7 +249,7 @@ public class BoardMapperTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 필드_초기값이_조회시에도_유지되는지_확인() {
 	    // given: 파일 없는 게시글 저장
 	    BoardDTO board = setUpBoard();
@@ -265,7 +265,7 @@ public class BoardMapperTests {
 	}
 	
 	
-//	@Test
+	@Test
 	@DisplayName("리플렉션 등으로 필드에 강제로 null이 할당되어도 Getter는 빈 리스트를 반환해야 한다")
 	void getter_null_방어_테스트() throws Exception {
 	    // 1. Given: 객체 생성
@@ -287,14 +287,14 @@ public class BoardMapperTests {
 	
 	
 	
-//	@Test
+	@Test
 	void 첨부파일을_포함한_게시물_수정_성공() {
 		
 		//given
 		BoardDTO board = setUpBoard();
 		
-		board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update1.jpg").image(true).sortOrder(0).build());
-		board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update2.jpg").image(true).sortOrder(1).build());
+		board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update1.jpg").image(true).sortOrder(0).build());
+		board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update2.jpg").image(true).sortOrder(1).build());
 		
 		
 		boardMapper.insertFiles(board);
@@ -305,9 +305,9 @@ public class BoardMapperTests {
 		board.setContent("수정된 내용");
 		
 		board.clearFiles();
-		board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update3.jpg").image(true).sortOrder(0).build());
-		board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update4.jpg").image(true).sortOrder(1).build());
-		board.addFile(BoardFileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update5.jpg").image(true).sortOrder(2).build());
+		board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update3.jpg").image(true).sortOrder(0).build());
+		board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update4.jpg").image(true).sortOrder(1).build());
+		board.addFile(FileDTO.builder().boardId(board.getBoardId()).uuid(UUID.randomUUID().toString()).fileName("update5.jpg").image(true).sortOrder(2).build());
 		
 		
 		boardMapper.deleteFiles(board.getBoardId());

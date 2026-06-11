@@ -50,6 +50,15 @@
 	
     <script src="${pageContext.request.contextPath}/resources/js/sb-admin-2.min.js"></script>
 	
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<script>
+    	
+		axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+    	
+    	axios.defaults.headers.common[document.querySelector('meta[name="_csrf_header"]').content] 
+         = document.querySelector('meta[name="_csrf"]').content
+	</script>
+	
 </body>
 
 </html>

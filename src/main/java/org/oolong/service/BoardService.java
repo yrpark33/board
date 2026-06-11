@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.oolong.common.util.FileUploader;
 import org.oolong.dto.BoardDTO;
-import org.oolong.dto.BoardFileDTO;
+import org.oolong.dto.FileDTO;
 import org.oolong.dto.BoardListDTO;
 import org.oolong.dto.BoardPageRequestDTO;
 import org.oolong.dto.BoardPageResponseDTO;
@@ -37,6 +37,8 @@ public class BoardService {
 	
 	private final ObjectMapper objectMapper;
 	
+	private String subDir = "board";
+	
 	
 	
 	@Transactional(readOnly = true)
@@ -60,6 +62,9 @@ public class BoardService {
 			String[] types = typeStr != null ? typeStr.split("") : null;
 			
 			List<BoardListDTO> dtoList = boardMapper.selectListSearch(offset, size, types, keyword);
+			
+			log.info(dtoList);
+			
 			int totalCount = boardMapper.selectTotalCountSearch(types, keyword);
 			
 			
@@ -72,10 +77,10 @@ public class BoardService {
 		log.info("writeBoard boardDTO: {}, {}", boardDTO, files);
 		
 		
-		List<BoardFileDTO> uploadedFiles = null;
+		List<FileDTO> uploadedFiles = null;
 		
 		try {
-			uploadedFiles = fileUploader.uploadFiles(files);
+			uploadedFiles = fileUploader.uploadFiles(files, subDir);
 		
 			uploadedFiles.forEach(file -> {
 		
@@ -102,7 +107,16 @@ public class BoardService {
 		} catch (Exception e) {
 			
 			if(uploadedFiles != null && !uploadedFiles.isEmpty()) {
-				fileUploader.deleteFiles(uploadedFiles);
+				try {
+				
+					fileUploader.deleteFiles(uploadedFiles, subDir);
+				
+				} catch(Exception deleteFilesEx) {
+					
+					log.error("등록된 물리파일 롤백 실패: ", deleteFilesEx.getMessage());
+					
+				}
+				
 			}
 			
 			throw e;
@@ -137,12 +151,12 @@ public class BoardService {
 	
 	
 	
-	private List<BoardFileDTO> parseJsonToList(String json) {
+	private List<FileDTO> parseJsonToList(String json) {
 	    if (!StringUtils.hasText(json)) {
 	        return Collections.emptyList(); // null 대신 빈 리스트 반환 (NPE 방지)
 	    }
 	    try {
-	        return objectMapper.readValue(json, new TypeReference<List<BoardFileDTO>>() {});
+	        return objectMapper.readValue(json, new TypeReference<List<FileDTO>>() {});
 	    } catch (JsonProcessingException e) {
 	        log.error("JSON 파싱 실패: {}", json);
 	        throw new RuntimeException("파일 정보 형식이 올바르지 않습니다.");
@@ -165,9 +179,9 @@ public class BoardService {
 		
 		log.info("modifyBoard boardDTO: {}", boardDTO);
 		
-		List<BoardFileDTO> addedFileList = new ArrayList<>();
-		List<BoardFileDTO> oldFiles = parseJsonToList(oldFileInfosJson);
-		List<BoardFileDTO> deletedFiles = parseJsonToList(deletedFileInfosJson);
+		List<FileDTO> addedFileList = new ArrayList<>();
+		List<FileDTO> oldFiles = parseJsonToList(oldFileInfosJson);
+		List<FileDTO> deletedFiles = parseJsonToList(deletedFileInfosJson);
 		
 		try {	
 			//해당 게시물의 모든 파일 정보 DB에서 삭제
@@ -178,7 +192,7 @@ public class BoardService {
 				
 			
 			//새로 추가된 파일 물리저장소에 저장
-			addedFileList = fileUploader.uploadFiles(addedFiles);
+			addedFileList = fileUploader.uploadFiles(addedFiles, subDir);
 			
 				
 			//새로 추가된 파일 정보 boardDTO에 담기
@@ -199,7 +213,7 @@ public class BoardService {
 			
 			try {
 			
-				fileUploader.deleteFiles(deletedFiles);
+				fileUploader.deleteFiles(deletedFiles, subDir);
 				
 			} catch(Exception e) {
 				
@@ -213,8 +227,11 @@ public class BoardService {
 			try {
 				
 				if(!addedFileList.isEmpty()) {
-					fileUploader.deleteFiles(addedFileList);
+					
+					fileUploader.deleteFiles(addedFileList, subDir);
 					log.warn("DB 트랜잭션 실패로 인한 업로드 파일 수동 롤백 완료");
+					
+					
 				}
 				
 			} catch(Exception e2) {
@@ -244,7 +261,6 @@ public class BoardService {
 		
 		boardMapper.delete(boardId);
 		
-		boardMapper.updateFilesAsDeleted(boardId);
 		
 	}
 	

@@ -12,6 +12,7 @@
 				
 				<div class="card-body">
 					<form action="/board/write" method="post" enctype="multipart/form-data">
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 						<c:if test="${not empty errorMsg}">
     						<div class="alert alert-danger">${errorMsg}</div>
 						</c:if>

@@ -19,8 +19,9 @@
 		<result property="content" column="content"/>
 		<result property="writer" column="writer"/>
 		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
 		
-		<collection property="files" ofType="BoardFileDTO">
+		<collection property="files" ofType="FileDTO">
 			<id property="fileId" column="file_id"/>
 			<result property="fileName" column="file_name"/>
 			<result property="uuid" column="uuid"/>
@@ -30,7 +31,7 @@
 	</resultMap>
 	
 	<select id="selectById" resultMap="selectMap">
-		SELECT b.board_id, title, content, writer, b.created_at, file_id, file_name, uuid, sort_order, image
+		SELECT b.board_id, title, content, writer, b.created_at, b.updated_at, file_id, file_name, uuid, sort_order, image
 		FROM tbl_board b
 		LEFT JOIN tbl_board_file f
 		ON b.board_id = f.board_id
@@ -51,7 +52,7 @@
 	</update>
 	
 	<sql id="search">
-		<if test="types != null and keyword != null">
+		<if test="types != null and types != '' and keyword != null and keyword != ''">
 			<foreach collection="types" item="type" open="AND (" close=")" separator=" OR ">
 				<if test='type.equals("T")'>
 					b.title LIKE CONCAT('%', #{keyword}, '%')
@@ -104,10 +105,5 @@
 		DELETE FROM tbl_board_file WHERE board_id = #{boardId}
 	</delete>
 	
-	<update id="updateFilesAsDeleted">
-		UPDATE tbl_board_file
-			SET deleted = TRUE
-		WHERE board_id = #{boardId} AND deleted = FALSE
-	</update>
-	
+
 </mapper>

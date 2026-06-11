@@ -12,7 +12,7 @@ import lombok.extern.log4j.Log4j2;
 
 @RestControllerAdvice(basePackages = "org.oolong.controller.api")
 @Log4j2
-public class CommentControllerAdvice {
+public class ApiControllerAdvice {
 	
 	@ExceptionHandler(ApplicationException.class)
 	public ResponseEntity<String> handleCommentError(ApplicationException ex) {

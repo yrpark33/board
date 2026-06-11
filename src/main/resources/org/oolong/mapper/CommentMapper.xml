@@ -23,7 +23,7 @@
 	
 	<update id="update">
 		UPDATE tbl_comment
-			SET content = #{content}, updated_at = NOW()
+			SET content = #{content}
 		WHERE comment_id = #{commentId} AND deleted = FALSE
 	</update>
 	

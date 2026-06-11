@@ -11,7 +11,6 @@ import lombok.ToString;
 @ToString
 public class BaseFullDTO extends BaseTimeDTO {
 	
-	private LocalDateTime updatedAt;
 	private LocalDateTime deletedAt;
 	private boolean deleted;
 	

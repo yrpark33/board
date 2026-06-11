@@ -14,7 +14,7 @@ import lombok.extern.log4j.Log4j2;
 
 @ControllerAdvice(basePackages = "org.oolong.controller.view")
 @Log4j2
-public class BoardControllerAdvice {
+public class ViewControllerAdvice {
 
 
 	@ExceptionHandler(ApplicationException.class)
@@ -32,7 +32,7 @@ public class BoardControllerAdvice {
 	        case 403:
 	        	msg = "접근 권한이 없습니다.";
 	        	rttr.addFlashAttribute("errorMsg", msg);
-	        	return "redirect:/";
+	        	return "redirect:/board/list";
 	        default:
 	            msg = "알 수 없는 오류가 발생했습니다.";
 	    }
@@ -54,7 +54,7 @@ public class BoardControllerAdvice {
 		
 		log.error("Internal Server Error: ", ex);
 		rttr.addFlashAttribute("errorMsg", "서비스 이용에 불편을 드려 죄송합니다. 잠시 후 다시 시도해 주세요.");
-		return "redirect:/";
+		return "redirect:/board/list";
 		
 		
 	}

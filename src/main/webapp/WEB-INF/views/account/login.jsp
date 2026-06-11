@@ -63,14 +63,38 @@
 			width: 100%;
 		}
 		
+		button[type="button"] {
+			
+			background-color: #C0C0C0;
+			color: white;
+			padding: 10px 15px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 1em;
+			width: 100%;
+		
+		}
+				
 		button[type="submit"]:hover {
 			background-color: #0056b3;
+		}
+		
+		button[type="button"]:hover {
+			background-color: #6c757d;
 		}
 		
 		
 		.message {
 			margin-bottom: 15px;
 			padding: 10px;
+			border-radius: 4px;
+			font-size: 0.9em;
+		}
+		
+		.info {
+			background-color: #d0fc5c;
+			color: #0a3711;
 			border-radius: 4px;
 			font-size: 0.9em;
 		}
@@ -100,21 +124,29 @@
 			</div>
 		</c:if>
 		
+		
+		
 		<c:if test="${param.logout != null}">
-			<div class="message logout-success">
+			<div class="message info">
 				성공적으로 로그아웃되었습니다.
 			</div>
 		</c:if>
 		
 		
+		<div id="information">
+			
+		</div>
+		
+		
 		
 		<form method="post">
+			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 			<div class="form-group">
-				<label for="username">사용자 이름:</label>
+				<label for="username">아이디</label>
 				<input type="text" id="username" name="username" required>
 			</div>
 			<div class="form-group">
-				<label for="password">비밀번호:</label>
+				<label for="password">비밀번호</label>
 				<input type="password" id="password" name="password" required>
 			</div>
 			<div class="form-group">
@@ -124,7 +156,31 @@
 				</label>
 			</div>
 			<button type="submit">로그인</button>
+			<div style="margin-top: 10px;">
+			    <button type="button" id="registerBtn" style="">홈</button>
+			</div>
 		</form>
 	</div>
+	
+	<script>
+		document.getElementById('registerBtn').addEventListener('click', function() {
+			
+			window.location.href = '/'
+			
+		})
+		
+		
+		const msg = '${msg}'
+		
+		if(msg) {
+			
+			document.getElementById('information').classList.add('message', 'info')
+			document.getElementById('information').textContent = msg
+			
+		}
+		
+		
+	</script>
+	
 </body>
 </html>

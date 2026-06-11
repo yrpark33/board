@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BoardFileDTO extends BaseTimeDTO {
+public class FileDTO extends BaseTimeDTO {
 	
 	private Long fileId;
 	private Long boardId;
@@ -17,5 +17,4 @@ public class BoardFileDTO extends BaseTimeDTO {
 	private String uuid;
 	private int sortOrder;
 	private boolean image;
-	private boolean deleted;
 }

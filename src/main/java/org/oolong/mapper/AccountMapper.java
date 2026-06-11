@@ -8,6 +8,19 @@ public interface AccountMapper {
 	
 	int insertRoles(AccountDTO accountDTO);
 	
-	AccountDTO selectOne(String username);
+	AccountDTO select(String username);
 	
+	int update(AccountDTO accountDTO);
+	
+	int delete(String username);
+	
+	int countByUsername(String username);
+	
+	int countByEmail(String email);
+	
+	int updatePassword(String username, String password);
+	
+	int deleteRememberMeToken(String username);
+	
+	int updateProfileImgNull(AccountDTO accountDTO);
 }

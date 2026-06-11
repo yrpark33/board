@@ -22,17 +22,57 @@
 		<result property="name" column="name"/>
 		<result property="email" column="email"/>
 		<result property="enabled" column="enabled"/>
+		<result property="profileImg" column="profile_img"/>
+		<result property="createdAt" column="created_at"/>
 		<collection property="roleNames" ofType="AccountRole">
 			<result column="rolename" typeHandler="org.apache.ibatis.type.EnumTypeHandler" javaType="AccountRole"/>
 		</collection>
 	</resultMap>
 	
 	
-	<select id="selectOne" resultMap="selectMap">
-		SELECT a.username, password, name, email, rolename, enabled FROM tbl_account a
+	<select id="select" resultMap="selectMap">
+		SELECT a.username, password, name, email, rolename, enabled, profile_img, created_at FROM tbl_account a
 		LEFT JOIN tbl_account_roles r
 		ON a.username = r.username
 		WHERE a.username = #{username}
 	</select>
+	
+	<update id="update">
+		UPDATE tbl_account
+		SET email = #{email}, profile_img = #{profileImg}
+		WHERE username = #{username}
+	</update>
+	
+	<update id="updateProfileImgNull">
+		UPDATE tbl_account
+		SET profile_img = null, email = #{email}
+		WHERE username = #{username}
+	</update>
+	
+	<update id="delete">
+		UPDATE tbl_account
+		SET enabled = FALSE, profile_img = null, disabled_at = NOW()
+		WHERE username = #{username}
+	</update>
+	
+	<select id="countByUsername">
+		SELECT COUNT(*) FROM tbl_account WHERE username = #{username}
+	</select>
+	
+	<select id="countByEmail">
+		SELECT COUNT(*) FROM tbl_account WHERE email = #{email}
+	</select>
+	
+	<update id="updatePassword">
+		UPDATE tbl_account
+			SET password = #{password}
+		WHERE username = #{username}
+	</update>
+	
+	<delete id="deleteRememberMeToken">
+		DELETE FROM persistent_logins
+		WHERE username = #{username}
+	</delete>
+	
 	
 </mapper>

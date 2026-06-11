@@ -1,6 +1,7 @@
 package org.oolong.dto;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,18 +11,32 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
+@ToString(callSuper = true)
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccountDTO extends BaseTimeDTO implements UserDetails {
 	
 	private String username;
 	private String password;
 	private String name;
 	private String email;
+	private String profileImg;
 	private List<AccountRole> roleNames;
 	private boolean enabled;
-	private LocalDateTime updatedAt;
+	private boolean disabledAt;
+	
+	
+	public String getCreatedTime() {
+		return getCreatedAt().format(DateTimeFormatter.ISO_DATE);
+	}
 	
 	
 	

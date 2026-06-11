@@ -13,6 +13,7 @@
 				</div>
 				<div class="card-body">
 					<form id="modifyForm" action="/board/modify" method="post" enctype="multipart/form-data">
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 						<c:if test="${not empty errorMsg}">
     						<div class="alert alert-danger">${errorMsg}</div>
 						</c:if>
@@ -41,7 +42,7 @@
 						</div>
 						<div class="input-group input-group-lg mb-3">
 							<div class="input-group-prepend"><span class="input-group-text">작성 시간</span></div>	
-							<input type="text" class="form-control" value="<c:out value='${board.createdDate}'/>" readonly>
+							<input type="text" class="form-control" value="<c:out value='${board.createdTime}'/>" readonly>
 						</div>
 						
 					<c:if test="${not empty board.files}">
@@ -51,8 +52,8 @@
 								<c:forEach var="file" items="${board.files}">
 									<div class="col-md-3 mb-3">
 										<div class="card position-relative">
-											<a href="/images/original/${file.uuid}_${file.fileName}" target="_blank">
-												<img src="/images/original/${file.uuid}_${file.fileName}" class="card-img-top img-fluid" alt="첨부파일"/>
+											<a href="/images/board/original/${file.uuid}_${file.fileName}" target="_blank">
+												<img src="/images/board/original/${file.uuid}_${file.fileName}" class="card-img-top img-fluid" alt="첨부파일"/>
 											</a>
 											<button type="button" class="btn btn-danger btn-sm position-absolute top-0 m-2 delete-file-btn" data-uuid="${file.uuid}" data-filename="${file.fileName}" data-image="${file.image}">삭제</button>
 										</div>
