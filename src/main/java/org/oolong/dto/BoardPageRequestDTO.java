@@ -16,7 +16,6 @@ public class BoardPageRequestDTO extends PageRequestDTO {
 	@Override
 	public String toQueryString() {
 		
-		
 		String queryString = super.toQueryString();
 		if(this.types != null && this.keyword != null) {
 		

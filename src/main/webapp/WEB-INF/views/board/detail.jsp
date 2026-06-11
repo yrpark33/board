@@ -26,9 +26,15 @@
 					</div>
 					<div class="input-group input-group-lg mb-3">
 						<div class="input-group-prepend"><span class="input-group-text">작성 시간</span></div>
-						<input type="text" class="form-control" value="<c:out value='${board.createdDate}'/>" readonly>
+						<input type="text" class="form-control" value="<c:out value='${board.createdTime}'/>" readonly>
 					</div>
 					
+					<c:if test="${not empty board.updatedAt}">
+						<div class="input-group input-group-lg mb-3">
+							<div class="input-group-prepend"><span class="input-group-text">수정 시간</span></div>
+							<input type="text" class="form-control" value="<c:out value='${board.updatedTime}'/>" readonly>
+						</div>
+					</c:if>
 					
 					<c:if test="${not empty board.files}">
 						<div class="mb-3">
@@ -37,8 +43,8 @@
 								<c:forEach var="file" items="${board.files}">
 									<div class="col-md-3 mb-3">
 										<div class="card">
-											<a href="/images/original/${file.uuid}_${file.fileName}" target="_blank">
-												<img src="/images/original/${file.uuid}_${file.fileName}" class="card-img-top img-fluid" alt="첨부파일"/>
+											<a href="/images/board/original/${file.uuid}_${file.fileName}" target="_blank">
+												<img src="/images/board/original/${file.uuid}_${file.fileName}" class="card-img-top img-fluid" alt="첨부파일"/>
 											</a>
 										</div>
 									</div>

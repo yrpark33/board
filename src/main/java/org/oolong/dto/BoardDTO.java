@@ -1,5 +1,6 @@
 package org.oolong.dto;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,20 +22,25 @@ public class BoardDTO extends BaseFullDTO {
 	private String title;
 	private String content;
 	private String writer;
+	private LocalDateTime updatedAt;
 	
 	@Builder.Default
-	private List<BoardFileDTO> files = new ArrayList<>();
+	private List<FileDTO> files = new ArrayList<>();
 	
 	
-    public List<BoardFileDTO> getFiles() {
+    public List<FileDTO> getFiles() {
         return this.files == null ? new ArrayList<>() : this.files;
     }
 	
-	public String getCreatedDate() {
-		return getCreatedAt().format(DateTimeFormatter.ISO_DATE);
+	public String getCreatedTime() {
+		return getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 	}
 	
-	public void addFile(BoardFileDTO boardFileDTO) {
+	public String getUpdatedTime() {
+		return getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	}
+	
+	public void addFile(FileDTO boardFileDTO) {
 		boardFileDTO.setSortOrder(this.files.size());
 		files.add(boardFileDTO);
 	}

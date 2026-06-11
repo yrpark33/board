@@ -2,7 +2,7 @@ package org.oolong.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -155,9 +155,10 @@ public class CommentMapperTests {
 		//when
 		int count = commentMapper.delete(comment.getCommentId());
 		
+	
 		//then
 		assertEquals(1, count, "삭제된 행의 개수는 1이어야합니다.");
-		assertNull(commentMapper.selectById(comment.getCommentId()));
+		assertTrue(commentMapper.selectById(comment.getCommentId()).isDeleted());
 	}
 	
 	

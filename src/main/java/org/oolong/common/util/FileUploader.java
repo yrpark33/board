@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.oolong.dto.BoardFileDTO;
+import org.oolong.dto.FileDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -28,17 +28,17 @@ public class FileUploader {
 	private static final String ORIGIN_DIR = "original";
 	private static final String THUMB_DIR = "thumbnail";
 	
-	public List<BoardFileDTO> uploadFiles(MultipartFile[] files) throws IOException {
+	public List<FileDTO> uploadFiles(MultipartFile[] files, String subDir) throws IOException {
 		
-		List<BoardFileDTO> fileDTOList = new ArrayList<>();
+		List<FileDTO> fileDTOList = new ArrayList<>();
 		
 		if(files == null || files.length == 0 || (files.length == 1 && files[0].isEmpty())) {
 			return fileDTOList;
 		}
 		
 		
-		File originDir = new File(uploadPath, ORIGIN_DIR);
-        File thumbDir = new File(uploadPath, THUMB_DIR);
+		File originDir = new File(new File(uploadPath, subDir), ORIGIN_DIR);
+        File thumbDir = new File(new File(uploadPath, subDir), THUMB_DIR);
         	
         
         if (!originDir.exists()) originDir.mkdirs();
@@ -66,7 +66,7 @@ public class FileUploader {
 				
 				log.info(targetFile.getAbsolutePath());
 				FileCopyUtils.copy(fin, fos);
-				fileDTOList.add(BoardFileDTO.builder().uuid(uuid).fileName(fileName).image(isImage).build());
+				fileDTOList.add(FileDTO.builder().uuid(uuid).fileName(fileName).image(isImage).build());
 				
 			} catch(Exception e) {
 				log.error(e.getMessage());
@@ -92,27 +92,31 @@ public class FileUploader {
 		
 	}
 	
-	public void deleteFiles(List<BoardFileDTO> uploadedFiles) {
+	public void deleteFiles(List<FileDTO> uploadedFiles, String subDir) {
 		try {
-				for(BoardFileDTO file : uploadedFiles) {
+				for(FileDTO file : uploadedFiles) {
 	
 					String fullFileName = file.getUuid() + "_" + file.getFileName();
 					
-					File targetFile = new File(new File(uploadPath, ORIGIN_DIR), fullFileName);
+					File subDirFile = new File(uploadPath, subDir);
+					
+					File targetFile = new File(new File(subDirFile, ORIGIN_DIR), fullFileName);
+					
+					
 					
 					if(targetFile.exists()) {
 						boolean deleted = targetFile.delete();
-						log.info(fullFileName + "원본 삭제 결과: " + deleted);
+						log.info(fullFileName + " 원본 삭제 결과: " + deleted);
 					}
 					
 					
 					if(file.isImage()) {
 						
-						File targetThumb = new File(new File(uploadPath, THUMB_DIR), "s_" + fullFileName);
+						File targetThumb = new File(new File(subDirFile, THUMB_DIR), "s_" + fullFileName);
 						
 						if(targetThumb.exists()) {
 							boolean deleted = targetThumb.delete();
-							log.info("s_" + fullFileName + "썸네일 삭제 결과: " + deleted);
+							log.info("s_" + fullFileName + " 썸네일 삭제 결과: " + deleted);
 						}
 					}
 				}
@@ -120,7 +124,14 @@ public class FileUploader {
 				
 		} catch(Exception e) {
 			log.error("파일 삭제 작업 중 오류 발생: " + e.getMessage());
+			throw e;
 		}
+	}
+	
+	
+	public FileDTO uploadFile(MultipartFile file, String subDir) throws IOException {
+	    List<FileDTO> result = uploadFiles(new MultipartFile[]{file}, subDir);
+	    return result.get(0);
 	}
 	
 	

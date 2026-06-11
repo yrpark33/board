@@ -6,7 +6,7 @@
 		<div class="col-lg-12">
 			<div class="card shadow mb-4">
 				<div class="card-header py-3">
-					<h5 class="m-0 font-weight-bold text-primary">게시물 목록</h5>
+					<h5 class="m-0 font-weight-bold text-primary">자유게시판</h5>
 				</div>
 				<div class="card-body">
 					
@@ -26,27 +26,34 @@
 						</div>
 					</div>
 					
-					<table class="table table-bordered" id="dataTable">
-						<thead>
-							<tr>
-								<th>번호</th>
-								<th>제목</th>
-								<th>작성자</th>
-								<th>작성일</th>
-							</tr>
-						</thead>
-						
-						<tbody class="tbody">
-							<c:forEach var="board" items="${dto.dtoList}">
-								<tr data-boardId="${board.boardId}">
-									<td><c:out value="${board.boardId}"/></td>
-									<td><c:if test="${not empty board.uuid}"><img src="/images/thumbnail/s_${board.uuid}_${board.fileName}"></c:if><a class="boardTitle" href="${board.boardId}"><c:out value="${board.title}"/></a> <b style="color:blue;">[ <c:out value="${board.commentCount}"/> ]</b> </td>
-									<td><c:out value="${board.writer}"/></td>
-									<td><c:out value="${board.createdDate}"/></td>
-								</tr>
-							</c:forEach>
-						</tbody>
-					</table>
+					<c:choose>
+					    <c:when test="${empty dto.dtoList}">
+					        <p class="text-center text-muted mt-4">검색 결과가 없습니다.</p>
+					    </c:when>
+						<c:otherwise>
+							<table class="table table-bordered" id="dataTable">
+								<thead>
+									<tr>
+										<th>번호</th>
+										<th>제목</th>
+										<th>작성자</th>
+										<th>작성일</th>
+									</tr>
+								</thead>
+								
+								<tbody class="tbody">
+								    <c:forEach var="board" items="${dto.dtoList}">
+										<tr data-boardId="${board.boardId}">
+											<td><c:out value="${board.boardId}"/></td>
+											<td><c:if test="${not empty board.uuid}"><img src="/images/board/thumbnail/s_${board.uuid}_${board.fileName}"></c:if><a class="boardTitle" href="${board.boardId}"><c:out value="${board.title}"/></a> <b style="color:blue;">[ <c:out value="${board.commentCount}"/> ]</b> </td>
+											<td><c:out value="${board.writer}"/></td>
+											<td><c:out value="${board.createdDate}"/></td>
+										</tr>
+									</c:forEach>
+								</tbody>
+							</table>
+						</c:otherwise>
+					</c:choose>
 					
 					<div class="d-flex justify-content-center">
 						<ul class="pagination">
@@ -92,12 +99,15 @@
 	
 	<script type="text/javascript" defer="defer">
 		
-		const errorMsg = '${errorMsg}'
 		
-		if(errorMsg) {
-			alert(errorMsg)
-		}
-	
+		
+		document.addEventListener('DOMContentLoaded', function() {
+		    const errorMsg = '${errorMsg}'
+		    if(errorMsg) {
+		        alert(errorMsg)
+		    }
+		})
+		
 	
 		const removed = '${removed}'
 		
@@ -153,6 +163,7 @@
 				types: types,
 				keyword: keyword
 			})
+			
 			
 			self.location = `/board/list?\${params.toString()}`
 			

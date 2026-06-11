@@ -19,7 +19,15 @@ public class Custom403Handler implements AccessDeniedHandler {
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 	
 		log.info("------AccessDeniedHandler--------");
-		response.sendRedirect(request.getContextPath() + "/error/403");
+		
+		String requestedWith = request.getHeader("X-Requested-With");
+	    
+	    if("XMLHttpRequest".equals(requestedWith)) {
+	        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+	        response.getWriter().write("제한된 접근입니다.");
+	    } else {
+	        response.sendRedirect(request.getContextPath() + "/error/403");
+	    }
 	}
 
 	

@@ -53,7 +53,7 @@ public class CommentServiceTests {
 	
 	
 	
-//	@Test
+	@Test
 	void 댓글_등록_성공() throws IOException {
 		
 		//given
@@ -73,7 +73,7 @@ public class CommentServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 댓글_수정을_위한_조회_성공() throws IOException {
 		
 		//given
@@ -94,7 +94,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 댓글_목록_조회_성공() throws IOException {
 		
 		//given
@@ -129,7 +129,7 @@ public class CommentServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 댓글_수정_성공() throws IOException {
 		
 		//given
@@ -153,7 +153,7 @@ public class CommentServiceTests {
 	
 	
 	
-//	@Test
+	@Test
 	void 댓글_삭제_성공() throws IOException {
 		
 		//given
@@ -175,7 +175,7 @@ public class CommentServiceTests {
 	
 	
 	
-//	@Test
+	@Test
 	void 댓글_등록시_내용_비어있으면_예외발생() {
 		
 		 CommentDTO commentDTO = CommentDTO.builder().writer("작성자").content("").build();		
@@ -190,7 +190,7 @@ public class CommentServiceTests {
 	
 	
 	
-//	@Test
+	@Test
 	void 댓글_수정시_내용_비어있으면_예외_발생() {
 		CommentDTO commentDTO = CommentDTO.builder().content("").build();
 		boolean admin = false;
@@ -202,7 +202,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 존재하지않는_댓글_조회시_예외발생() {
 		
 		Long commentId = 9999999L;
@@ -217,7 +217,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 존재하지않는_댓글_수정시_예외발생() {
 		
 		Long commentId = 9999999L;
@@ -233,7 +233,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 존재하지않는_댓글_삭제시_예외발생() {
 		
 		Long commentId = 9999999L;
@@ -248,7 +248,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 이미_삭제된_댓글_조회시_예외발생() throws IOException {
 		
 		Long targetBoardId = createBoard();
@@ -270,7 +270,7 @@ public class CommentServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 이미_삭제된_댓글_삭제시_예외발생() throws IOException {
 		
 		Long targetBoardId = createBoard();
@@ -291,7 +291,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 이미_삭제된_댓글_수정시_예외발생() throws IOException {
 		
 		Long targetBoardId = createBoard();
@@ -313,7 +313,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void admin계정_조회_성공() throws IOException {
 		
 		//given
@@ -334,7 +334,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void admin계정_수정_성공() throws IOException {
 		
 		//given
@@ -356,7 +356,7 @@ public class CommentServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void admin계정_삭제_성공() throws IOException {
 		
 		//given
@@ -374,7 +374,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 작성자불일치_조회시_403예외() throws IOException {
 			
 		//given
@@ -394,7 +394,7 @@ public class CommentServiceTests {
 		
 	}
 
-//	@Test
+	@Test
 	void 작성자불일치_수정시_403예외() throws IOException {
 			
 		//given
@@ -416,7 +416,7 @@ public class CommentServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 작성자불일치_삭제시_403예외() throws IOException {
 			
 		//given

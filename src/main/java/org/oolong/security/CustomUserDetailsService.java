@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		log.info("---------------loadUserByUsername-----------------", username);
 		
 		
-		AccountDTO accountDTO = accountMapper.selectOne(username);
+		AccountDTO accountDTO = accountMapper.select(username);
 		
 		
 		if(accountDTO == null) {

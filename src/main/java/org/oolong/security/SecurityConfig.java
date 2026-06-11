@@ -41,10 +41,6 @@ public class SecurityConfig {
 		});
 		
 		
-		http.csrf(config -> {
-			config.disable();
-		});
-		
 		http.exceptionHandling(handler -> {
 			
 			handler.accessDeniedHandler(new Custom403Handler());

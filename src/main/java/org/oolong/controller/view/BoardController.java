@@ -40,6 +40,7 @@ public class BoardController {
 
 		BoardPageResponseDTO responseDTO = boardService.getBoardList(dto);
 		log.info("BoardController: " + responseDTO);
+		
 		model.addAttribute("dto", responseDTO);
 
 		return "/board/list";

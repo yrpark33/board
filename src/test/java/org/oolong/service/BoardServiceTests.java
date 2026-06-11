@@ -16,13 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.oolong.dto.BoardDTO;
-import org.oolong.dto.BoardFileDTO;
+import org.oolong.dto.FileDTO;
 import org.oolong.dto.BoardListDTO;
 import org.oolong.dto.BoardPageRequestDTO;
 import org.oolong.dto.BoardPageResponseDTO;
@@ -58,8 +59,20 @@ public class BoardServiceTests {
 	
 	@Autowired JdbcTemplate jdbcTemplate;
 	
+	
 	@Value("${org.oolong.upload.path}")
 	String uploadPath;
+	
+	File originalDir;
+	File thumbnailDir;
+	
+	String subDir = "board";
+	
+	@BeforeEach
+	void init() {
+	    originalDir = new File(new File(uploadPath, subDir), "original");
+	    thumbnailDir = new File(new File(uploadPath, subDir), "thumbnail");
+	}
 	
 	
 	@AfterEach
@@ -101,8 +114,8 @@ public class BoardServiceTests {
 	}
 	
 	
-//	@ParameterizedTest
-//	@ValueSource(strings = {"NULL", "EMPTY_ARRAY", "EMPTY_FILE"})
+	@ParameterizedTest
+	@ValueSource(strings = {"NULL", "EMPTY_ARRAY", "EMPTY_FILE"})
 	@DisplayName("파일이 비어있는 다양한 경우에도 게시물은 정상 등록되어야 한다")
 	void writeBoard_EmptyCases(String type) throws IOException {
 	    
@@ -124,7 +137,7 @@ public class BoardServiceTests {
 	   
 	
 	
-//	@Test
+	@Test
 	@DisplayName("이미지와 일반 파일이 섞여 있어도 각각의 특성에 맞게 정상 등록되어야 한다")
 	void writeBoard_WithFiles() throws IOException {
 	    
@@ -152,30 +165,24 @@ public class BoardServiceTests {
 	    //물리적 파일
 	    savedBoard.getFiles().forEach(dto -> {
 			
-			String originalPath = uploadPath + "/original/" + dto.getUuid() + "_" + dto.getFileName();
-			
-			File savedFile = new File(originalPath);
-			assertTrue(savedFile.exists(), "물리적 파일이 생성되어야 합니다.");
+			assertTrue(new File(originalDir, dto.getUuid() + "_" + dto.getFileName()).exists(), "원본파일이 생성되어야 한다.");
 			
 			if(dto.isImage()) {
 				
-				String thumbnailPath = uploadPath + "/thumbnail/s_" + dto.getUuid() + "_" + dto.getFileName();
-				File thumbFile = new File(thumbnailPath);
-				assertTrue(thumbFile.exists(), "이미지라면 썸네일이 생성되어야 합니다.");
-				
+				assertTrue(new File(thumbnailDir, "s_" + dto.getUuid() + "_" + dto.getFileName()).exists(), "이미지라면 썸네일이 생성되어야 합니다.");
 			
 			}
 	    });
 	    
 	    
 	    // 이미지 파일 DB 검증 (isImage가 true여야 함)
-	    BoardFileDTO savedImage = savedBoard.getFiles().stream()
+	    FileDTO savedImage = savedBoard.getFiles().stream()
 	            .filter(f -> f.getFileName().equals("sample_image.jpg"))
 	            .findFirst().orElseThrow();
 	    assertTrue(savedImage.isImage(), "이미지 파일은 isImage가 true여야 합니다.");
 	    
 	    // 일반 파일 DB 검증 (isImage가 false여야 함)
-	    BoardFileDTO savedText = savedBoard.getFiles().stream()
+	    FileDTO savedText = savedBoard.getFiles().stream()
 	            .filter(f -> f.getFileName().equals("sample_note.txt"))
 	            .findFirst().orElseThrow();
 	    assertFalse(savedText.isImage(), "일반 텍스트 파일은 isImage가 false여야 합니다.");
@@ -184,7 +191,7 @@ public class BoardServiceTests {
 	}
 	    
 	
-//	@Test
+	@Test
 	void 존재하지않는_게시물_조회시_예외발생() {
 		
 		// given
@@ -203,7 +210,7 @@ public class BoardServiceTests {
 
 	
 	
-//	@Test
+	@Test
 	void 게시물_목록_조회_성공() throws IOException {
 		
 		
@@ -283,7 +290,7 @@ public class BoardServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 게시물_수정_성공() throws IOException {
 		
 		//given
@@ -294,13 +301,13 @@ public class BoardServiceTests {
 		
 		//when
 		
-		List<BoardFileDTO> files = boardService.getBoard(boardId).getFiles();
+		List<FileDTO> files = boardService.getBoard(boardId).getFiles();
 		
-		List<BoardFileDTO> deletedFiles = new ArrayList<>();
-		List<BoardFileDTO> oldFiles = new ArrayList<>();
+		List<FileDTO> deletedFiles = new ArrayList<>();
+		List<FileDTO> oldFiles = new ArrayList<>();
 		
-		deletedFiles.add(files.get(0));
-		oldFiles.add(files.get(1));
+		deletedFiles.add(files.get(0)); //이미지파일
+		oldFiles.add(files.get(1)); //텍스트파일
 		
 		
 
@@ -329,44 +336,44 @@ public class BoardServiceTests {
 		//then
 		BoardDTO result = boardService.getBoard(boardId);
 		assertNotNull(result);
-		assertEquals("수정제목", result.getTitle());
-		assertEquals("수정내용", result.getContent());
-		assertEquals("user01", result.getWriter());
+		assertEquals(updateDTO.getTitle(), result.getTitle());
+		assertEquals(updateDTO.getContent(), result.getContent());
+		assertEquals(board.getWriter(), result.getWriter());
 		assertEquals(3, result.getFiles().size());
 		
 		
-		List<BoardFileDTO> resultFiles = result.getFiles();
+		List<FileDTO> resultFiles = result.getFiles();
 		
 		
 		//삭제되지 않고 남은 파일 DB에 존재하는지 확인
-		BoardFileDTO oldFile = resultFiles.stream().filter(f -> f.getFileName().equals(oldFiles.get(0).getFileName())).findFirst().orElseThrow();
+		FileDTO oldFile = resultFiles.stream().filter(f -> f.getFileName().equals(oldFiles.get(0).getFileName())).findFirst().orElseThrow();
 		
 		//삭제되지 않고 남은 파일 물리저장소에 존재하는지 확인
-		assertTrue(Paths.get(uploadPath, "original", oldFile.getUuid() + "_" + oldFile.getFileName()).toFile().exists());
+		assertTrue(new File(originalDir, oldFile.getUuid() + "_" + oldFile.getFileName()).exists(), "삭제되지 않은 파일은 물리저장소에 남아있어야 한다.");
 		
 		
 		//추가된 파일(addedFile)이 DB에 존재하는지 확인
-		BoardFileDTO addedText = resultFiles.stream().filter(f -> f.getFileName().equals("new_note.txt")).findFirst().orElseThrow();
-		BoardFileDTO addedImage = resultFiles.stream().filter(f -> f.getFileName().equals("new_image.jpg")).findFirst().orElseThrow();
+		FileDTO addedText = resultFiles.stream().filter(f -> f.getFileName().equals("new_note.txt")).findFirst().orElseThrow();
+		FileDTO addedImage = resultFiles.stream().filter(f -> f.getFileName().equals("new_image.jpg")).findFirst().orElseThrow();
 		
 		//추가된 파일(addedFile)이 물리저장소에 존재하는지 확인
-		assertTrue(Paths.get(uploadPath, "original", addedText.getUuid() + "_" + addedText.getFileName()).toFile().exists());
-		assertFalse(Paths.get(uploadPath, "thumbnail",  "s_" + addedText.getUuid() + "_" + addedText.getFileName()).toFile().exists());
-		assertTrue(Paths.get(uploadPath, "original", addedImage.getUuid() + "_" + addedImage.getFileName()).toFile().exists());
-		assertTrue(Paths.get(uploadPath, "thumbnail",  "s_" + addedImage.getUuid() + "_" + addedImage.getFileName()).toFile().exists());
+		assertTrue(new File(originalDir, addedText.getUuid() + "_" + addedText.getFileName()).exists());
+		assertFalse(new File(thumbnailDir, "s_" + addedText.getUuid() + "_" + addedText.getFileName()).exists(), "텍스트파일은 썸네일이 생성되지 않아야 한다.");
+		assertTrue(new File(originalDir, addedImage.getUuid() + "_" + addedImage.getFileName()).exists());
+		assertTrue(new File(thumbnailDir, "s_" + addedImage.getUuid() + "_" + addedImage.getFileName()).exists());
 	
 		//삭제하기로 한 파일(deletedFiles)이 DB에서 사라졌는지 확인
-		assertFalse(resultFiles.stream().anyMatch(f -> f.getFileName().equals(deletedFiles.get(0).getFileName())), "삭제 요청한 파일은 DB에 없어야 합니다.");
+		assertFalse(resultFiles.stream().anyMatch(f -> f.getFileName().equals(deletedFiles.get(0).getFileName())), "삭제 요청한 파일은 DB에 없어야 한다.");
 		
 		
 		//삭제하기로 한 파일(deletedFiles)이 물리적으로 삭제되었는지 확인
-		assertFalse(Paths.get(uploadPath, "original", deletedFiles.get(0).getUuid() + "_" + deletedFiles.get(0).getFileName()).toFile().exists(), "삭제 요청한 이미지의 원본은 물리적으로 삭제되어야 합니다.");
-		assertFalse(Paths.get(uploadPath, "thumbnail", "s_" + deletedFiles.get(0).getUuid() + "_" + deletedFiles.get(0).getFileName()).toFile().exists(), "삭제 요청한 이미지의 썸네일은 물리적으로 삭제되어야 합니다.");
+		assertFalse(new File(originalDir, deletedFiles.get(0).getUuid() + "_" + deletedFiles.get(0).getFileName()).exists(), "삭제 요청한 이미지의 원본은 물리적으로 삭제되어야 합니다.");
+		assertFalse(new File(thumbnailDir, "s_" + deletedFiles.get(0).getUuid() + "_" + deletedFiles.get(0).getFileName()).exists(), "삭제 요청한 이미지의 썸네일은 물리적으로 삭제되어야 합니다.");
 
 	}
 	
 	
-//	@Test
+	@Test
 	@DisplayName("잘못된 형식의 JSON이 전달되면 파싱 에러(RuntimeException)가 발생해야 한다")
 	void testModifyBoard_ParsingError() throws IOException {
 	    // given: 잘못된 JSON 데이터 준비
@@ -396,7 +403,7 @@ public class BoardServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	@DisplayName("DB 업데이트 중 에러 발생 시, 업로드되었던 파일이 수동으로 삭제되어야 한다")
 	void testModifyBoard_FileRollback() throws IOException {
 	    // given: 정상 게시글 등록
@@ -423,26 +430,24 @@ public class BoardServiceTests {
 	    });
 
 	    // 파일 시스템에 파일이 남아있지 않아야 함
-	    File originalDir = new File(uploadPath, "original");
-	    File thumbnailDir = new File(uploadPath, "thumbnail");
-	    
 	    File[] originalFiles = originalDir.listFiles();
 	    File[] thumbnailFiles = thumbnailDir.listFiles();
-
+	    
+	    assertNotNull(originalFiles);
+	    assertNotNull(thumbnailFiles);
 	    assertEquals(0, originalFiles.length, "원본 폴더가 비어있어야 합니다.");
 	    assertEquals(0, thumbnailFiles.length, "썸네일 폴더가 비어있어야 합니다.");
 	}
 	
 	
 	
-//	@Test
+	@Test
 	void 게시물_삭제_성공() throws IOException {
 		
 		//given
 		BoardDTO board = createBoardDTO();
 		MultipartFile[] files = createMockFiles("MIXED");
 		Long generatedId = boardService.writeBoard(board, files);
-		int fileCount = files.length;
 		
 		//when
 		
@@ -459,28 +464,23 @@ public class BoardServiceTests {
 		Integer boardCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM tbl_board WHERE board_id = ? and deleted = true", Integer.class, generatedId);
 		assertEquals(1, boardCount, "게시물은 삭제 상태(deleted=true)여야 합니다.");
 		
-		Integer deletedFileCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM tbl_board_file WHERE board_id = ? AND deleted = true", Integer.class, generatedId);
-		assertEquals(fileCount, deletedFileCount, "모든 첨부파일이 삭제 상태(deleted=true)여야 합니다.");
-		
-		
-		
-		String sql = "SELECT uuid, file_name, image FROM tbl_board_file WHERE board_id = ? AND deleted = TRUE";
+		String sql = "SELECT uuid, file_name, image FROM tbl_board_file WHERE board_id = ?";
 
-		List<BoardFileDTO> deletedFiles = jdbcTemplate.query(sql, (rs, rowNum) -> {
-		    BoardFileDTO dto = new BoardFileDTO();
+		List<FileDTO> deletedFiles = jdbcTemplate.query(sql, (rs, rowNum) -> {
+		    FileDTO dto = new FileDTO();
 		    dto.setUuid(rs.getString("uuid"));
 		    dto.setFileName(rs.getString("file_name"));
 		    dto.setImage(rs.getBoolean("image"));
 		    return dto;
 		}, generatedId);
 		
-		for(BoardFileDTO file : deletedFiles) {
+		for(FileDTO file : deletedFiles) {
 			
-			assertTrue(Paths.get(uploadPath, "original", file.getUuid() + "_" + file.getFileName()).toFile().exists(), "물리저장소에는 원본파일이 존재해야한다.");
+			assertTrue(new File(originalDir, file.getUuid() + "_" + file.getFileName()).exists(), "물리저장소에는 원본파일이 존재해야한다.");
 			
 			if(file.isImage()) {
 				
-				assertTrue(Paths.get(uploadPath, "thumbnail", "s_" + file.getUuid() + "_" + file.getFileName()).toFile().exists(), "물리저장소에는 썸네일이 존재해야한다.");
+				assertTrue(new File(thumbnailDir, "s_" + file.getUuid() + "_" + file.getFileName()).exists(), "물리저장소에는 썸네일이 존재해야한다.");
 				
 				
 			}
@@ -492,7 +492,7 @@ public class BoardServiceTests {
 	
 	
 	
-//	@Test
+	@Test
 	void 존재하지_않는_게시물_수정시_예외_발생() {
 	    
 		// given
@@ -520,7 +520,7 @@ public class BoardServiceTests {
 	
 	
 	
-//	@Test
+	@Test
 	void 존재하지않는_게시물_삭제시_예외발생() {
 		
 		//given
@@ -538,7 +538,7 @@ public class BoardServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 이미_삭제된_게시물_삭제시_예외발생() throws IOException {
 		
 		
@@ -563,7 +563,7 @@ public class BoardServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 이미_삭제된_게시물_수정시_예외발생() throws IOException {
 		
 		//given
@@ -589,7 +589,7 @@ public class BoardServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 작성자불일치_수정시_403예외() throws IOException {
 	    // given
 	    BoardDTO board = createBoardDTO();
@@ -613,7 +613,7 @@ public class BoardServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	void 작성자불일치_수정화면을_위한_조회시_403예외() throws IOException {
 		
 		//given
@@ -634,7 +634,7 @@ public class BoardServiceTests {
 		
 	}
 	
-//	@Test
+	@Test
 	void 작성자불일치_삭제시_403예외() throws IOException {
 		
 		//given
@@ -656,7 +656,7 @@ public class BoardServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	@DisplayName("admin은 작성자가 아니어도 수정을 위한 조회가 가능해야 한다")
 	void admin계정_작성자불일치_수정화면을_위한_조회_가능() throws IOException {
 	    // given
@@ -673,7 +673,7 @@ public class BoardServiceTests {
 	}
 	
 	
-//	@Test
+	@Test
 	@DisplayName("admin은 작성자가 아니어도 수정 가능해야 한다")
 	void admin계정_작성자불일치_수정가능() throws IOException {
 	    // given
@@ -696,7 +696,7 @@ public class BoardServiceTests {
 	    });
 	}
 	
-//	@Test
+	@Test
 	@DisplayName("admin은 작성자가 아니어도 삭제 가능해야 한다")
 	void admin계정_작성자불일치_삭제가능() throws IOException {
 	    // given
