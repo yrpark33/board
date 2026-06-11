@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileDTO extends BaseTimeDTO {
+public class FileDTO {
 	
 	private Long fileId;
 	private Long boardId;

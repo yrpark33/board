@@ -28,7 +28,7 @@
 					
 					<c:choose>
 					    <c:when test="${empty dto.dtoList}">
-					        <p class="text-center text-muted mt-4">검색 결과가 없습니다.</p>
+					        <p class="text-center text-muted mt-4">게시물이 없습니다.</p>
 					    </c:when>
 						<c:otherwise>
 							<table class="table table-bordered" id="dataTable">
@@ -45,7 +45,7 @@
 								    <c:forEach var="board" items="${dto.dtoList}">
 										<tr data-boardId="${board.boardId}">
 											<td><c:out value="${board.boardId}"/></td>
-											<td><c:if test="${not empty board.uuid}"><img src="/images/board/thumbnail/s_${board.uuid}_${board.fileName}"></c:if><a class="boardTitle" href="${board.boardId}"><c:out value="${board.title}"/></a> <b style="color:blue;">[ <c:out value="${board.commentCount}"/> ]</b> </td>
+											<td><c:if test="${not empty board.uuid}"><img class="mr-2" src="/images/board/thumbnail/s_${board.uuid}_${board.fileName}"></c:if><a class="boardTitle" href="${board.boardId}"><c:out value="${board.title}"/></a> <b style="color:blue;">[ <c:out value="${board.commentCount}"/> ]</b> </td>
 											<td><c:out value="${board.writer}"/></td>
 											<td><c:out value="${board.createdDate}"/></td>
 										</tr>

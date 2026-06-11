@@ -208,7 +208,7 @@
 				const canModify = !commentDTO.deleted && (username === commentDTO.writer || admin);
 			
 				liStr += `<li class="list-group-item" commentId="\${commentDTO.commentId}">
-							<div><strong>\${commentDTO.commentId}</strong> - \${commentDTO.deleted ? '삭제된 댓글입니다.' : commentDTO.content}</div>
+							<div>\${commentDTO.deleted ? '삭제된 댓글입니다.' : commentDTO.content}</div>
 						    <div class="d-flex justify-content-between align-items-center">
 						        <span class="text-muted small">\${commentDTO.deleted ? '알 수 없음' : commentDTO.writer}</span>
 						        <div>
